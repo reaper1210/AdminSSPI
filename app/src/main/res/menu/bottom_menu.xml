@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/support"
+        android:enabled="true"
+        android:icon="@drawable/ic_support"
+        android:title="Support"
+        app:cnb_backgroundColor="@color/primaryLight"
+        android:iconTint="@color/primary"
+        app:cnb_textColor="@color/primary" />
+
+    <item
+        android:id="@+id/categories"
+        android:enabled="true"
+        android:icon="@drawable/ic_categories"
+        android:title="Categories"
+        app:cnb_backgroundColor="@color/primaryLight"
+        app:cnb_textColor="@color/primary" />
+
+    <item
+        android:id="@+id/others"
+        android:enabled="true"
+        android:icon="@drawable/ic_support"
+        android:title="Others"
+        app:cnb_backgroundColor="@color/primaryLight"
+        app:cnb_textColor="@color/primary" />
+
+</menu>
