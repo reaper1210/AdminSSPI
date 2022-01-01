@@ -42,4 +42,17 @@ class SupportViewModel
             }
     }
 
+    fun sendMessage(userId: String,message: String) = viewModelScope.launch {
+        supportRepository.sendMessage(userId,message)
+            .onStart {
+                _support_apiStateFlow.value = SupportApiState.LoadingSendMessage
+            }
+            .catch { e->
+                _support_apiStateFlow.value = SupportApiState.FailureSendMessage(e)
+            }
+            .collect { supportMessage ->
+                _support_apiStateFlow.value = SupportApiState.SuccessSendMessage(supportMessage)
+            }
+    }
+
 }

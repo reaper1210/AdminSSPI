@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.*
 import com.swamisamarthpet.adminsspi.data.model.SupportMessage
@@ -21,20 +22,15 @@ constructor(): ListAdapter<SupportMessage,RecyclerView.ViewHolder>(Diff)
     class AdminMessageViewHolder(private val binding: SupportMessageSingleRowBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(message: SupportMessage){
             binding.apply {
-                var params = relativeLayoutMessageSingleRow.layoutParams as ConstraintLayout.LayoutParams
-                params.apply {
-                    horizontalBias = 1f
-                    marginStart = 32
-                    marginEnd = 4
-                }
-                relativeLayoutMessageSingleRow.apply{
-                    layoutParams = params
-                }
+                var params = frameLayoutMessageSingleRow.layoutParams as ConstraintLayout.LayoutParams
+                params.horizontalBias = 1f
+                frameLayoutMessageSingleRow.layoutParams = params
+
                 params = txtTimeMessageSingleRow.layoutParams as ConstraintLayout.LayoutParams
                 params.apply {
                     horizontalBias = 1f
-                    marginStart = 16
-                    marginEnd = 8
+                    marginStart = 8
+                    marginEnd = 16
                 }
                 txtTimeMessageSingleRow.apply{
                     textAlignment = View.TEXT_ALIGNMENT_VIEW_END
@@ -52,25 +48,7 @@ constructor(): ListAdapter<SupportMessage,RecyclerView.ViewHolder>(Diff)
     class UserMessageViewHolder(private val binding: SupportMessageSingleRowBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(message: SupportMessage){
             binding.apply {
-                var params = relativeLayoutMessageSingleRow.layoutParams as ConstraintLayout.LayoutParams
-                params.apply {
-                    width = wrapBehaviorInParent
-                    horizontalBias = 0f
-                    marginStart = 4
-                    marginEnd = 32
-                }
-                relativeLayoutMessageSingleRow.apply{
-                    layoutParams = params
-                }
-                params = txtMessageSingleRow.layoutParams as ConstraintLayout.LayoutParams
-                params.apply {
-                    horizontalBias = 0.5f
-                    marginStart = 16
-                    marginEnd = 8
-                }
-                txtMessageSingleRow.apply{
-                    layoutParams = params
-                }
+
                 val timeInString = SimpleDateFormat("hh:mm aa", Locale.getDefault()).format(Date(message.dateAndTime))
                 txtTimeMessageSingleRow.text = timeInString
                 txtMessageSingleRow.text = message.message

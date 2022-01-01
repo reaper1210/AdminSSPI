@@ -9,7 +9,10 @@ import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.CompletableDeferred
+import java.util.*
 import javax.inject.Inject
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 class SupportApiService @Inject constructor() {
 
@@ -43,6 +46,27 @@ class SupportApiService @Inject constructor() {
                 messagesList.add(SupportMessage(message, dateAndTime, messageFrom))
             }
             def.complete(messagesList)
+        }
+        return def.await()
+    }
+
+    suspend fun sendMessage(userId: String, message: String): SupportMessage {
+        val def = CompletableDeferred<SupportMessage>()
+        firebaseClient.collection(userId).orderBy("dateAndTime").get().addOnSuccessListener {
+            val lastMessageId = if(it.documents.isNotEmpty()){
+                it.documents[it.documents.lastIndex].id.toInt()
+            } else{
+                1
+            }
+            val currentMessageId = (lastMessageId+1).toString()
+            val date = Calendar.getInstance().time.time
+            val messageHashmap = HashMap<String,Any>()
+            messageHashmap["message"] = message
+            messageHashmap["dateAndTime"] = date
+            messageHashmap["messageFrom"] = "admin"
+            firebaseClient.collection(userId).document(currentMessageId).set(messageHashmap as Map<String, Any>).addOnSuccessListener {
+                def.complete(SupportMessage(message,date,"user"))
+            }
         }
         return def.await()
     }

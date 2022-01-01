@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.firestore.FirebaseFirestore
 import com.swamisamarthpet.adminsspi.R
 import com.swamisamarthpet.adminsspi.adapter.SupportMessagesAdapter
 import com.swamisamarthpet.adminsspi.data.model.SupportMessage
@@ -29,6 +30,7 @@ class UserChatActivity : AppCompatActivity() {
 
     private val supportViewModel: SupportViewModel by viewModels()
     private var messageList = ArrayList<SupportMessage>()
+    private val db = FirebaseFirestore.getInstance()
     lateinit var currentUser: User
     lateinit var binding: ActivityUserChatBinding
     private val supportMessagesAdapter = SupportMessagesAdapter()
@@ -46,6 +48,8 @@ class UserChatActivity : AppCompatActivity() {
             startActivity(Intent(this, MainActivity::class.java))
         }
 
+        handleResponse()
+
         binding.apply{
             recyclerUserChat.apply {
                 adapter = supportMessagesAdapter
@@ -58,33 +62,74 @@ class UserChatActivity : AppCompatActivity() {
                 callIntent.data = Uri.parse("tel:${currentUser.phoneNumber}")
                 startActivity(callIntent)
             }
+            btnSendMessageUserChat.setOnClickListener {
+                val message = edtTxtUserChatMessage.text.toString()
+                if(message.isNotEmpty()){
+                    supportViewModel.sendMessage(currentUser.userId,message)
+                }
+            }
         }
 
         supportViewModel.getAllMessages(currentUser.userId)
-        handleGetAllMessages()
+        initSnapShotListener()
 
         setContentView(binding.root)
     }
 
-    private fun handleGetAllMessages() {
+    private fun setValues() {
+        val linearLayoutManager = LinearLayoutManager(this)
+        linearLayoutManager.stackFromEnd = true
+        addDateChips()
+        supportMessagesAdapter.submitList(messageList)
+
+        binding.apply {
+            recyclerUserChat.apply{
+                layoutManager = linearLayoutManager
+                adapter = supportMessagesAdapter
+                scrollToPosition(messageList.size-1)
+            }
+        }
+
+    }
+
+    private fun handleResponse() {
         lifecycleScope.launchWhenStarted {
             supportViewModel.supportApiStateFlow.collect{ supportApiState ->
                 when(supportApiState){
+
                     is SupportApiState.LoadingGetAllMessages ->{
                         binding.userChatProgressBarLayout.visibility = View.VISIBLE
                     }
                     is SupportApiState.SuccessGetAllMessages -> {
                         messageList = supportApiState.data as ArrayList<SupportMessage>
-                        addDateChips()
-                        supportMessagesAdapter.submitList(messageList)
+                        setValues()
                         binding.userChatProgressBarLayout.visibility = View.GONE
                     }
                     is SupportApiState.FailureGetAllMessages -> {
                         Toast.makeText(this@UserChatActivity,"Some Error Occurred While retrieving messages",Toast.LENGTH_SHORT).show()
                     }
-                    is SupportApiState.EmptyGetAllMessages -> {
+
+
+                    is SupportApiState.LoadingSendMessage ->{
+                        binding.apply{
+                            btnSendMessageUserChatProgressBar.visibility = View.VISIBLE
+                            btnSendMessageUserChat.visibility = View.INVISIBLE
+                        }
                     }
+                    is SupportApiState.SuccessSendMessage ->{
+                        binding.apply{
+                            btnSendMessageUserChatProgressBar.visibility = View.GONE
+                            btnSendMessageUserChat.visibility = View.VISIBLE
+                            edtTxtUserChatMessage.text.clear()
+                        }
+                    }
+                    is SupportApiState.FailureSendMessage ->{
+                        Toast.makeText(this@UserChatActivity,"Some Error Occurred While sending message",Toast.LENGTH_SHORT).show()
+                    }
+
+
                     else -> {
+                        Toast.makeText(this@UserChatActivity,"Some Error Occurred",Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -125,6 +170,25 @@ class UserChatActivity : AppCompatActivity() {
 
                 i++
 
+            }
+        }
+    }
+
+    private fun initSnapShotListener(){
+        db.collection(currentUser.userId).addSnapshotListener { value, error ->
+            if(error==null){
+                val documents = value?.documents!!
+                messageList.clear()
+                for(document in documents){
+                    val message = document["message"].toString()
+                    val dateAndTime = document["dateAndTime"] as Long
+                    val messageFrom = document["messageFrom"].toString()
+                    messageList.add(SupportMessage(message, dateAndTime, messageFrom))
+                }
+                messageList.sortBy {
+                    it.dateAndTime
+                }
+                setValues()
             }
         }
     }

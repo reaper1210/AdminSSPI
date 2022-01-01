@@ -20,4 +20,8 @@ class SupportRepository
         emit(supportApiService.getAllMessages(userId))
     }.flowOn(Dispatchers.IO)
 
+    fun sendMessage(userId:String,message: String): Flow<SupportMessage> = flow {
+        emit(supportApiService.sendMessage(userId,message))
+    }.flowOn(Dispatchers.IO)
+
 }
