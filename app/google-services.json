@@ -1,0 +1,84 @@
+{
+  "project_info": {
+    "project_number": "436844856622",
+    "project_id": "sspi-chat",
+    "storage_bucket": "sspi-chat.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:436844856622:android:d3c0038397cbb7c51366bf",
+        "android_client_info": {
+          "package_name": "com.swamisamarthpet.adminsspi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "436844856622-rc1fh52nocktgfukg9a0i82gq8m6rr7u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARAeDiXnOlymi42VPBXXg_iyn9Y_QvxvQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "436844856622-rc1fh52nocktgfukg9a0i82gq8m6rr7u.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:436844856622:android:0d623697c0d80a2b1366bf",
+        "android_client_info": {
+          "package_name": "com.swamisamarthpet.swamisamarthpetindustries"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "436844856622-a6noqrgt02g113k1ie9uo6mqco5eage8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.swamisamarthpet.swamisamarthpetindustries",
+            "certificate_hash": "4fa2ba3d7ddc35dce76bffa7ecf125b6b3db4b9a"
+          }
+        },
+        {
+          "client_id": "436844856622-boo4aie1jglslv41kk30nla2c24i0uuf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.swamisamarthpet.swamisamarthpetindustries",
+            "certificate_hash": "14256618f577f6be45af80cfd319dc27deb04b4d"
+          }
+        },
+        {
+          "client_id": "436844856622-rc1fh52nocktgfukg9a0i82gq8m6rr7u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARAeDiXnOlymi42VPBXXg_iyn9Y_QvxvQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "436844856622-rc1fh52nocktgfukg9a0i82gq8m6rr7u.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

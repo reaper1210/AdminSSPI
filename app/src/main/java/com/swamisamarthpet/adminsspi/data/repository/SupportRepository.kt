@@ -1,5 +1,6 @@
 package com.swamisamarthpet.adminsspi.data.repository
 
+import com.swamisamarthpet.adminsspi.data.model.SupportMessage
 import com.swamisamarthpet.adminsspi.data.model.User
 import com.swamisamarthpet.adminsspi.data.network.SupportApiService
 import kotlinx.coroutines.Dispatchers
@@ -14,4 +15,9 @@ class SupportRepository
     fun getAllUsers(): Flow<List<User>> = flow{
         emit(supportApiService.getAllUsers())
     }.flowOn(Dispatchers.IO)
+
+    fun getAllMessages(userId:String): Flow<List<SupportMessage>> = flow {
+        emit(supportApiService.getAllMessages(userId))
+    }.flowOn(Dispatchers.IO)
+
 }

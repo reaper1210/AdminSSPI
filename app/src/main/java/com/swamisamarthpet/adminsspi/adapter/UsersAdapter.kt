@@ -1,10 +1,12 @@
 package com.swamisamarthpet.adminsspi.adapter
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.swamisamarthpet.adminsspi.activity.UserChatActivity
 import com.swamisamarthpet.adminsspi.data.model.User
 import com.swamisamarthpet.adminsspi.databinding.UserSingleRowSupportFragmentBinding
 import javax.inject.Inject
@@ -17,6 +19,13 @@ constructor():ListAdapter<User,UsersAdapter.UserViewHolder>(Diff) {
         fun bind(user: User) {
             binding.apply {
                 txtUserName.text = user.userName
+                root.setOnClickListener {
+                    val intent = Intent(it.context,UserChatActivity::class.java)
+                    intent.putExtra("userId",user.userId)
+                    intent.putExtra("userName",user.userName)
+                    intent.putExtra("phoneNumber",user.phoneNumber)
+                    it.context.startActivity(intent)
+                }
             }
         }
     }
@@ -29,7 +38,6 @@ constructor():ListAdapter<User,UsersAdapter.UserViewHolder>(Diff) {
         override fun areContentsTheSame(oldItem: User, newItem: User): Boolean {
             return oldItem == newItem
         }
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
@@ -46,6 +54,5 @@ constructor():ListAdapter<User,UsersAdapter.UserViewHolder>(Diff) {
         val user = getItem(position)
         holder.bind(user)
     }
-
 
 }

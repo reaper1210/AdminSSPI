@@ -7,10 +7,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.swamisamarthpet.adminsspi.adapter.UsersAdapter
 import com.swamisamarthpet.adminsspi.data.model.User
 import com.swamisamarthpet.adminsspi.data.util.SupportApiState
@@ -69,31 +69,33 @@ class SupportFragment : Fragment() {
     private fun searchUsers(text: String) {
         val temp: MutableList<User> = mutableListOf()
         for (user in usersList) {
-            if ((user.userName.toLowerCasePreservingASCIIRules()).contains(text.toString().toLowerCasePreservingASCIIRules())) {
+            if ((user.userName.toLowerCasePreservingASCIIRules()).contains(text.toLowerCasePreservingASCIIRules())) {
                 temp.add(user)
             }
         }
         usersAdapter.submitList(temp)
     }
 
-    fun handleGetAllUsersResponse(){
+    private fun handleGetAllUsersResponse(){
         lifecycleScope.launchWhenStarted {
             supportViewModel.supportApiStateFlow.collect { supportApiState->
                 when(supportApiState){
-                    is SupportApiState.Loading ->{
-
+                    is SupportApiState.LoadingGetAllUsers ->{
+                        binding.fragmentSupportProgressBar.visibility = View.VISIBLE
                     }
                     is SupportApiState.SuccessGetAllUsers ->{
                         usersList = supportApiState.data
                         usersAdapter.submitList(supportApiState.data)
+                        binding.fragmentSupportProgressBar.visibility = View.GONE
                     }
-                    is SupportApiState.Failure ->{
+                    is SupportApiState.FailureGetAllUsers ->{
+                        Toast.makeText(requireContext(),"Error While loading users",Toast.LENGTH_SHORT).show()
+                    }
+                    is SupportApiState.EmptyGetAllUsers ->{
+                    }
+                    else -> {
 
                     }
-                    is SupportApiState.Empty ->{
-
-                    }
-
                 }
             }
         }

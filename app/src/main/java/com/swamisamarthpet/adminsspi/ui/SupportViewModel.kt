@@ -13,19 +13,32 @@ import javax.inject.Inject
 class SupportViewModel
 @Inject constructor(private val supportRepository: SupportRepository):ViewModel(){
 
-    private val _support_apiStateFlow: MutableStateFlow<SupportApiState> = MutableStateFlow(SupportApiState.Empty)
+    private val _support_apiStateFlow: MutableStateFlow<SupportApiState> = MutableStateFlow(SupportApiState.EmptyGetAllUsers)
     val supportApiStateFlow: StateFlow<SupportApiState> = _support_apiStateFlow
 
     fun getAllUsers() = viewModelScope.launch {
         supportRepository.getAllUsers()
             .onStart {
-                _support_apiStateFlow.value = SupportApiState.Loading
+                _support_apiStateFlow.value = SupportApiState.LoadingGetAllUsers
             }
             .catch {e->
-                _support_apiStateFlow.value = SupportApiState.Failure(e)
+                _support_apiStateFlow.value = SupportApiState.FailureGetAllUsers(e)
             }
             .collect {usersList->
                 _support_apiStateFlow.value = SupportApiState.SuccessGetAllUsers(usersList)
+            }
+    }
+
+    fun getAllMessages(userId: String) = viewModelScope.launch {
+        supportRepository.getAllMessages(userId)
+            .onStart {
+                _support_apiStateFlow.value = SupportApiState.LoadingGetAllMessages
+            }
+            .catch { e->
+                _support_apiStateFlow.value = SupportApiState.FailureGetAllMessages(e)
+            }
+            .collect { messageList ->
+                _support_apiStateFlow.value = SupportApiState.SuccessGetAllMessages(messageList)
             }
     }
 
