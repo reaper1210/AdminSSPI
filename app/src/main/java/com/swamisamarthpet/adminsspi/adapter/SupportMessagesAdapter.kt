@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.*
+import com.swamisamarthpet.adminsspi.R
 import com.swamisamarthpet.adminsspi.data.model.SupportMessage
 import com.swamisamarthpet.adminsspi.databinding.DateChipMessageSingleRowBinding
 import com.swamisamarthpet.adminsspi.databinding.SupportMessageSingleRowBinding
@@ -22,9 +23,15 @@ constructor(): ListAdapter<SupportMessage,RecyclerView.ViewHolder>(Diff)
     class AdminMessageViewHolder(private val binding: SupportMessageSingleRowBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(message: SupportMessage){
             binding.apply {
-                var params = frameLayoutMessageSingleRow.layoutParams as ConstraintLayout.LayoutParams
-                params.horizontalBias = 1f
-                frameLayoutMessageSingleRow.layoutParams = params
+                var params = cardViewMessageSingleRow.layoutParams as ConstraintLayout.LayoutParams
+                params.apply {
+                    horizontalBias = 1f
+                    marginEnd = 16
+                }
+                cardViewMessageSingleRow.apply {
+                    layoutParams = params
+                    setCardBackgroundColor(Color.parseColor("#C0E8FF"))
+                }
 
                 params = txtTimeMessageSingleRow.layoutParams as ConstraintLayout.LayoutParams
                 params.apply {
@@ -36,7 +43,7 @@ constructor(): ListAdapter<SupportMessage,RecyclerView.ViewHolder>(Diff)
                     textAlignment = View.TEXT_ALIGNMENT_VIEW_END
                     layoutParams = params
                 }
-                innerConstraintLayoutMessageSingleRow.setBackgroundColor(Color.parseColor("#C0E8FF"))
+
                 val timeInString = SimpleDateFormat("hh:mm aa", Locale.getDefault()).format(Date(message.dateAndTime))
                 txtTimeMessageSingleRow.text = timeInString
                 txtMessageSingleRow.text = message.message
@@ -48,7 +55,6 @@ constructor(): ListAdapter<SupportMessage,RecyclerView.ViewHolder>(Diff)
     class UserMessageViewHolder(private val binding: SupportMessageSingleRowBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(message: SupportMessage){
             binding.apply {
-
                 val timeInString = SimpleDateFormat("hh:mm aa", Locale.getDefault()).format(Date(message.dateAndTime))
                 txtTimeMessageSingleRow.text = timeInString
                 txtMessageSingleRow.text = message.message

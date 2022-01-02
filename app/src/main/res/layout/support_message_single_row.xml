@@ -6,77 +6,69 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <FrameLayout
-        android:id="@+id/frameLayoutMessageSingleRow"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardViewMessageSingleRow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:layout_marginHorizontal="8dp"
+        app:strokeColor="@color/primaryLight"
+        app:strokeWidth=".5dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp"
         android:layout_marginStart="4dp"
-        android:layout_marginEnd="32dp"
         android:elevation="0dp"
-        android:layout_alignParentEnd="true"
+        app:cardBackgroundColor="@color/background"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:outlineSpotShadowColor="@color/primary">
 
-        <com.google.android.material.card.MaterialCardView
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/innerConstraintLayoutMessageSingleRow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:layout_marginHorizontal="8dp"
-            app:strokeColor="@color/primaryLight"
-            app:strokeWidth=".5dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="8dp"
-            android:layout_gravity="end"
-            android:outlineSpotShadowColor="@color/primary">
+            android:paddingHorizontal="8dp">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/innerConstraintLayoutMessageSingleRow"
+            <TextView
+                android:id="@+id/txtMessageSingleRow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@color/background"
-                android:paddingHorizontal="8dp">
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="12dp"
+                android:text="I want a price for this product"
+                android:textColor="@color/primary"
+                android:textSize="18sp"
+                android:textAlignment="viewStart"
+                android:maxWidth="280dp"
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
 
-                <TextView
-                    android:id="@+id/txtMessageSingleRow"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginTop="12dp"
-                    android:text="I want a price for this product"
-                    android:textColor="@color/primary"
-                    android:textSize="18sp"
-                    android:textAlignment="viewStart"
-                    app:layout_constraintHorizontal_bias="0"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"/>
+            <TextView
+                android:id="@+id/txtTimeMessageSingleRow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="12dp"
+                android:text="10:20"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/txtMessageSingleRow"
+                app:layout_constraintBottom_toBottomOf="parent"/>
 
-                <TextView
-                    android:id="@+id/txtTimeMessageSingleRow"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="12dp"
-                    android:text="10:20"
-                    android:textColor="@color/black"
-                    android:textSize="12sp"
-                    app:layout_constraintHorizontal_bias="0"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/txtMessageSingleRow"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
-    </FrameLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 
