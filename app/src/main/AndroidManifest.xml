@@ -13,6 +13,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AdminSSPI">
         <activity
+            android:name=".activity.MachineActivity"
+            android:exported="false" />
+        <activity
             android:name=".activity.UserChatActivity"
             android:exported="true" />
         <activity
