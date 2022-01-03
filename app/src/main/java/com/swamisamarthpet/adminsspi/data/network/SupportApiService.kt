@@ -8,6 +8,7 @@ import io.ktor.client.engine.android.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
 import kotlinx.coroutines.CompletableDeferred
 import java.util.*
 import javax.inject.Inject
@@ -48,6 +49,17 @@ class SupportApiService @Inject constructor() {
             def.complete(messagesList)
         }
         return def.await()
+    }
+
+    suspend fun updateLastMessageTime(userId:String,time:String):Int{
+        return client.post("https://sspi-test-api.herokuapp.com/v1/updateLastMessageTime"){
+            body = MultiPartFormDataContent(
+                formData {
+                    append("userId",userId)
+                    append("lastMessageTime",time)
+                }
+            )
+        }
     }
 
     suspend fun sendMessage(userId: String, message: String): SupportMessage {

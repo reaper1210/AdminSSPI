@@ -41,14 +41,13 @@ class UserChatActivity : AppCompatActivity() {
 
         try{
             intent.apply{
-                currentUser = User(getStringExtra("userId")!!,intent.getStringExtra("userName")!!,intent.getStringExtra("phoneNumber")!!)
+                currentUser = User(getStringExtra("userId")!!,getStringExtra("userName")!!,getStringExtra("phoneNumber")!!,
+                    getStringExtra("lastMessageTime")!!)
             }
         }catch (e: NullPointerException){
             Toast.makeText(this@UserChatActivity,"Some Error Occurred",Toast.LENGTH_SHORT).show()
             startActivity(Intent(this, MainActivity::class.java))
         }
-
-        handleResponse()
 
         binding.apply{
             recyclerUserChat.apply {
@@ -71,6 +70,7 @@ class UserChatActivity : AppCompatActivity() {
         }
 
         supportViewModel.getAllMessages(currentUser.userId)
+        handleResponse()
         initSnapShotListener()
 
         setContentView(binding.root)
@@ -121,12 +121,46 @@ class UserChatActivity : AppCompatActivity() {
                             btnSendMessageUserChatProgressBar.visibility = View.GONE
                             btnSendMessageUserChat.visibility = View.VISIBLE
                             edtTxtUserChatMessage.text.clear()
+                            supportViewModel.updateLastMessageTime(currentUser.userId,supportApiState.data.dateAndTime.toString())
+                            handleUpdateResponse()
                         }
                     }
                     is SupportApiState.FailureSendMessage ->{
                         Toast.makeText(this@UserChatActivity,"Some Error Occurred While sending message",Toast.LENGTH_SHORT).show()
                     }
 
+
+                    else -> {
+                        Toast.makeText(this@UserChatActivity,"Some Error Occurred",Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun handleUpdateResponse(){
+        lifecycleScope.launchWhenStarted {
+            supportViewModel.supportApiStateFlow.collect{ supportApiState ->
+                when(supportApiState){
+
+                    is SupportApiState.LoadingUpdateLastMessageTime -> {
+                    }
+                    is SupportApiState.SuccessUpdateLastMessageTime -> {
+                        Toast.makeText(this@UserChatActivity,"Success Last Msg Time",Toast.LENGTH_SHORT).show()
+                    }
+                    is SupportApiState.FailureUpdateLastMessageTime -> {
+                        println("ERRORR : ${supportApiState.msg}")
+                        Toast.makeText(this@UserChatActivity,"Some Error Occurred While retrieving messages",Toast.LENGTH_SHORT).show()
+                    }
+                    is SupportApiState.LoadingUpdateUnreadMessages -> {
+
+                    }
+                    is SupportApiState.SuccessUpdateUnreadMessages -> {
+                        Toast.makeText(this@UserChatActivity,"Success Unread",Toast.LENGTH_SHORT).show()
+                    }
+                    is SupportApiState.FailureUpdateUnreadMessages -> {
+
+                    }
 
                     else -> {
                         Toast.makeText(this@UserChatActivity,"Some Error Occurred",Toast.LENGTH_SHORT).show()
@@ -160,12 +194,12 @@ class UserChatActivity : AppCompatActivity() {
                     val month = (SimpleDateFormat("MM", Locale.getDefault()).format(Date(messageList[i].dateAndTime))).toInt()
                     val year = (SimpleDateFormat("yyyy", Locale.getDefault()).format(Date(messageList[i].dateAndTime))).toInt()
 
-
                     if((year!=previousMessageYear) or (month!=previousMessageMonth) or (date!=previousMessageDate)){
                         println("i $i lastIndex $messageListSize preDate $previousMessageDate date $date message ${messageList[i].message}")
                         messageList.add(i, SupportMessage("",messageList[i].dateAndTime,""))
                         messageListSize++
                     }
+
                 }
 
                 i++

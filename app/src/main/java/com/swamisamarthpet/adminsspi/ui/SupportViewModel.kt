@@ -55,4 +55,17 @@ class SupportViewModel
             }
     }
 
+    fun updateLastMessageTime(userId: String,time:String) = viewModelScope.launch {
+        supportRepository.updateLastMessageTime(userId,time)
+            .onStart {
+                _support_apiStateFlow.value = SupportApiState.LoadingUpdateLastMessageTime
+            }
+            .catch { e->
+                _support_apiStateFlow.value = SupportApiState.FailureUpdateLastMessageTime(e)
+            }
+            .collect { response ->
+                _support_apiStateFlow.value = SupportApiState.SuccessUpdateLastMessageTime(response)
+            }
+    }
+
 }

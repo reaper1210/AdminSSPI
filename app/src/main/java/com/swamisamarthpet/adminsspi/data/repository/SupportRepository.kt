@@ -24,4 +24,8 @@ class SupportRepository
         emit(supportApiService.sendMessage(userId,message))
     }.flowOn(Dispatchers.IO)
 
+    fun updateLastMessageTime(userId:String,time:String): Flow<Int> = flow {
+        emit(supportApiService.updateLastMessageTime(userId,time))
+    }.flowOn(Dispatchers.IO)
+
 }
