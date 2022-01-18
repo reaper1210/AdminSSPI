@@ -128,11 +128,7 @@ class UserChatActivity : AppCompatActivity() {
                     is SupportApiState.FailureSendMessage ->{
                         Toast.makeText(this@UserChatActivity,"Some Error Occurred While sending message",Toast.LENGTH_SHORT).show()
                     }
-
-
-                    else -> {
-                        Toast.makeText(this@UserChatActivity,"Some Error Occurred",Toast.LENGTH_SHORT).show()
-                    }
+                    else -> {}
                 }
             }
         }
@@ -142,29 +138,10 @@ class UserChatActivity : AppCompatActivity() {
         lifecycleScope.launchWhenStarted {
             supportViewModel.supportApiStateFlow.collect{ supportApiState ->
                 when(supportApiState){
-
-                    is SupportApiState.LoadingUpdateLastMessageTime -> {
-                    }
-                    is SupportApiState.SuccessUpdateLastMessageTime -> {
-                        Toast.makeText(this@UserChatActivity,"Success Last Msg Time",Toast.LENGTH_SHORT).show()
-                    }
                     is SupportApiState.FailureUpdateLastMessageTime -> {
-                        println("ERRORR : ${supportApiState.msg}")
-                        Toast.makeText(this@UserChatActivity,"Some Error Occurred While retrieving messages",Toast.LENGTH_SHORT).show()
-                    }
-                    is SupportApiState.LoadingUpdateUnreadMessages -> {
-
-                    }
-                    is SupportApiState.SuccessUpdateUnreadMessages -> {
-                        Toast.makeText(this@UserChatActivity,"Success Unread",Toast.LENGTH_SHORT).show()
-                    }
-                    is SupportApiState.FailureUpdateUnreadMessages -> {
-
-                    }
-
-                    else -> {
                         Toast.makeText(this@UserChatActivity,"Some Error Occurred",Toast.LENGTH_SHORT).show()
                     }
+                    else -> {}
                 }
             }
         }

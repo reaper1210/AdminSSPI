@@ -1,9 +1,227 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.MachineActivity">
+    tools:context=".activity.MachineActivity"
+    android:background="@color/background">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/topLayoutCategoriesFrag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/gradient_rect_2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/imgCategoryImageMachineActivity"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_launcher_background"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/edtTxtSearchBarCategoriesFrag"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/txtCategoryNameMachineActivity"
+            app:layout_constraintHorizontal_weight="3"/>
+
+        <TextView
+            android:id="@+id/txtCategoryNameMachineActivity"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginVertical="20dp"
+            android:text="Category Name"
+            android:textColor="#0094FF"
+            android:textSize="26sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/imgCategoryImageMachineActivity"
+            app:layout_constraintHorizontal_weight="6"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/btnUpdateCategoryMachineActivity"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="Update"
+            android:textColor="@color/primary"
+            android:textAlignment="center"
+            android:backgroundTint="@color/primaryLight"
+            android:enabled="false"
+            app:layout_constraintTop_toBottomOf="@id/txtCategoryNameMachineActivity"
+            app:layout_constraintBottom_toTopOf="@id/edtTxtSearchBarCategoriesFrag"
+            app:layout_constraintStart_toStartOf="@id/txtCategoryNameMachineActivity"
+            app:layout_constraintEnd_toStartOf="@id/btnDeleteCategoryMachineActivity"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/btnDeleteCategoryMachineActivity"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Delete"
+            android:textColor="@color/primary"
+            android:textAlignment="center"
+            android:backgroundTint="@color/primaryLight"
+            android:enabled="false"
+            app:layout_constraintTop_toBottomOf="@id/txtCategoryNameMachineActivity"
+            app:layout_constraintBottom_toTopOf="@id/edtTxtSearchBarCategoriesFrag"
+            app:layout_constraintEnd_toEndOf="@id/txtCategoryNameMachineActivity"
+            app:layout_constraintStart_toEndOf="@id/btnUpdateCategoryMachineActivity"/>
+
+        <EditText
+            android:id="@+id/edtTxtSearchBarCategoriesFrag"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/search_bg"
+            android:drawableEnd="@drawable/ic_search"
+            android:hint="Search"
+            android:paddingHorizontal="10dp"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
+            app:layout_constraintTop_toBottomOf="@id/imgCategoryImageMachineActivity"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="8dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/topLayoutCategoriesFrag">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/allMachinesCardView"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:backgroundTint="@color/background"
+            app:cardCornerRadius="12dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:cardElevation="0dp">
+
+            <ImageView
+                android:id="@+id/allMachines"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:tag="selected"
+                android:src="@drawable/all_machines_selected"/>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/automaticMachinesCardView"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_marginTop="24dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            android:backgroundTint="@color/background"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/allMachinesCardView">
+
+            <ImageView
+                android:id="@+id/automaticMachines"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:tag="unselected"
+                android:src="@drawable/automatic_machines_unselected"/>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_marginTop="24dp"
+            android:backgroundTint="@color/background"
+            app:cardCornerRadius="12dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:cardElevation="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/automaticMachinesCardView">
+
+            <ImageView
+                android:id="@+id/semiAutomaticMachines"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:tag="unselected"
+                android:src="@drawable/semi_auto_unselected"/>
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerMachinesActivity"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginTop="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/topLayoutCategoriesFrag"
+        app:layout_constraintStart_toEndOf="@+id/constraintLayout"
+        app:layout_constraintTop_toBottomOf="@+id/topLayoutCategoriesFrag" />
+
+    <RelativeLayout
+        android:id="@+id/noMachinesLayout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginTop="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/topLayoutCategoriesFrag"
+        app:layout_constraintStart_toEndOf="@+id/constraintLayout"
+        app:layout_constraintTop_toBottomOf="@+id/topLayoutCategoriesFrag"
+        android:background="@color/background">
+
+        <TextView
+            android:id="@+id/txtNoMachines"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_centerInParent="true"
+            android:text="No Machines found"
+            android:textAlignment="center"
+            android:textSize="22sp"
+            android:textColor="@color/primary"/>
+
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/btnAddCategoryMachineActivity"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:src="@drawable/add_btn"
+        android:layout_margin="32dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+<!--    <RelativeLayout-->
+<!--        android:id="@+id/machineActProgressBarLayout"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:background="@color/background">-->
+
+<!--        <com.airbnb.lottie.LottieAnimationView-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            app:lottie_rawRes="@raw/loading"-->
+<!--            app:lottie_autoPlay="true"-->
+<!--            app:lottie_loop="true"-->
+<!--            android:layout_centerInParent="true"/>-->
+
+<!--    </RelativeLayout>-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
