@@ -16,4 +16,8 @@ class CategoriesRepository
         emit(categoriesApiService.getAllCategories())
     }.flowOn(Dispatchers.IO)
 
+    fun deleteCategory(categoryId:Int): Flow<Int> = flow{
+        emit(categoriesApiService.deleteCategory(categoryId))
+    }.flowOn(Dispatchers.IO)
+
 }

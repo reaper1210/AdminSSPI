@@ -7,4 +7,8 @@ sealed class CategoryApiState {
     class FailureGetAllMachines(val msg:Throwable) : CategoryApiState()
     class SuccessGetAllMachines(val data: List<Category>) : CategoryApiState()
     object LoadingGetAllMachines: CategoryApiState()
+    object EmptyDeleteCategory:CategoryApiState()
+    class FailureDeleteCategory(val msg:Throwable) : CategoryApiState()
+    class SuccessDeleteCategory(val data: Int) : CategoryApiState()
+    object LoadingDeleteCategory: CategoryApiState()
 }

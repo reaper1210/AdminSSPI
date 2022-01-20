@@ -29,4 +29,17 @@ class CategoriesViewModel
             }
     }
 
+    fun deleteCategory(categoryId:Int) = viewModelScope.launch {
+        categoriesRepository.deleteCategory(categoryId)
+            .onStart {
+                _Category_apiStateFlow.value = CategoryApiState.LoadingDeleteCategory
+            }
+            .catch {e->
+                _Category_apiStateFlow.value = CategoryApiState.FailureDeleteCategory(e)
+            }
+            .collect {response->
+                _Category_apiStateFlow.value = CategoryApiState.SuccessDeleteCategory(response)
+            }
+    }
+
 }

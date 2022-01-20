@@ -50,7 +50,9 @@ class CategoriesAdapter
                     itemView.setOnClickListener {
                         Constants.currentCategory = category
                         val intent = Intent(it.context, MachineActivity::class.java)
-                        intent.putExtra("categoryName",txtCategoryName.text.toString())
+                        intent.putExtra("categoryId",category.categoryId)
+                        intent.putExtra("categoryName",category.categoryName)
+                        intent.putExtra("categoryImg",decompressedImageByteArray)
                         it.context.startActivity(intent)
                     }
                 }
