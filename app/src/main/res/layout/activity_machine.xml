@@ -40,9 +40,7 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-
-
-        <EditText
+        <TextView
             android:id="@+id/txtCategoryNameMachineActivity"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -212,7 +210,7 @@
     </RelativeLayout>
 
     <ImageView
-        android:id="@+id/btnAddCategoryMachineActivity"
+        android:id="@+id/btnAddMachine"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:src="@drawable/add_btn"

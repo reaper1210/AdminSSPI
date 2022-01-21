@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.swamisamarthpet.adminsspi.R
+import com.swamisamarthpet.adminsspi.activity.MachineDetailsActivity
 import com.swamisamarthpet.adminsspi.databinding.MachinesSingleRowBinding
 import java.io.ByteArrayOutputStream
 import java.util.zip.Inflater
@@ -48,9 +49,9 @@ constructor() : ListAdapter<HashMap<String, String>, MachinesAdapter.MyViewHolde
                 txtMachineName.isSelected = true
                 txtMachineName.isHorizontalFadingEdgeEnabled = true
                 itemView.setOnClickListener {
-//                    val intent = Intent(it.context,MachineDetailsActivity::class.java)
-//                    intent.putExtra("machineId",machine["machineId"]?.toInt())
-//                    it.context.startActivity(intent)
+                    val intent = Intent(it.context, MachineDetailsActivity::class.java)
+                    intent.putExtra("machineId",machine["machineId"]?.toInt())
+                    it.context.startActivity(intent)
                 }
             }
         }

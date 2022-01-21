@@ -25,7 +25,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.swamisamarthpet.adminsspi.data.util.CategoryApiState
 
-
 @AndroidEntryPoint
 class MachineActivity : AppCompatActivity() {
     private val machinesViewModel: MachineViewModel by viewModels()
@@ -49,7 +48,7 @@ class MachineActivity : AppCompatActivity() {
         if((categoryName!=null) and (categoryImg!=null)){
             machinesAdapter = MachinesAdapter()
             binding.apply {
-                txtCategoryNameMachineActivity.setText(categoryName)
+                txtCategoryNameMachineActivity.text = categoryName
                 Glide.with(binding.root).load(categoryImg).into(imgCategoryImageMachineActivity)
                 noMachinesLayout.visibility = View.GONE
 
@@ -65,13 +64,11 @@ class MachineActivity : AppCompatActivity() {
                             setTitle("Delete Category")
                             setMessage("Are you sure to delete category?")
                             setNegativeButton("Cancel", null)
-                            setPositiveButton("Delete",object :DialogInterface.OnClickListener{
-                                override fun onClick(dialog: DialogInterface?, which: Int) {
-                                    categoryViewModel.deleteCategory(categoryId)
-                                    handleDeleteResponse()
-                                    dialog?.cancel()
-                                }
-                            })
+                            setPositiveButton("Delete") { dialog, which ->
+                                categoryViewModel.deleteCategory(categoryId)
+                                handleDeleteResponse()
+                                dialog?.cancel()
+                            }
                         }
                     dialog.create()
                     dialog.show()
