@@ -13,6 +13,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AdminSSPI">
         <activity
+            android:name=".activity.AddCategoryActivity"
+            android:exported="false" />
+        <activity
             android:name=".activity.MachineDetailsActivity"
             android:exported="true" />
         <activity

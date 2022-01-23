@@ -1,5 +1,6 @@
 package com.swamisamarthpet.adminsspi.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -11,6 +12,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.swamisamarthpet.adminsspi.R
+import com.swamisamarthpet.adminsspi.activity.AddCategoryActivity
 import com.swamisamarthpet.adminsspi.adapter.CategoriesAdapter
 import com.swamisamarthpet.adminsspi.data.model.Category
 import com.swamisamarthpet.adminsspi.data.util.CategoryApiState
@@ -57,6 +59,11 @@ class CategoriesFragment : Fragment() {
                 }
 
             })
+
+            btnAddCategoryFragment.setOnClickListener {
+                val intent = Intent(requireContext(),AddCategoryActivity::class.java)
+                startActivity(intent)
+            }
         }
         return binding.root
     }
