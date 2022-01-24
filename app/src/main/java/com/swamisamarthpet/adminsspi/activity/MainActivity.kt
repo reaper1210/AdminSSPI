@@ -33,8 +33,20 @@ class MainActivity : AppCompatActivity() {
             bottomMenu.setItemSelected(R.id.home)
             viewPagerMainActivity.adapter = viewPagerAdapter
             viewPagerMainActivity.isUserInputEnabled = false
-            viewPagerMainActivity.currentItem = 0
-            bottomMenu.setItemSelected(R.id.support,true)
+            val redirectPage = intent.getIntExtra("redirect",0)
+            viewPagerMainActivity.currentItem = redirectPage
+            when(redirectPage){
+                1 -> {
+                    bottomMenu.setItemSelected(R.id.categories,true)
+                }
+                2 -> {
+                    bottomMenu.setItemSelected(R.id.others,true)
+                }
+                else -> {
+                    bottomMenu.setItemSelected(R.id.support,true)
+                }
+            }
+
             bottomMenu.setOnItemSelectedListener {
                 when(it){
                     R.id.support->{

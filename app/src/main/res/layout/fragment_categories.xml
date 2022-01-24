@@ -56,7 +56,7 @@
         android:id="@+id/btnAddCategoryFragment"
         android:layout_width="64dp"
         android:layout_height="64dp"
-        android:layout_margin="16dp"
+        android:layout_margin="32dp"
         android:src="@drawable/add_btn"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

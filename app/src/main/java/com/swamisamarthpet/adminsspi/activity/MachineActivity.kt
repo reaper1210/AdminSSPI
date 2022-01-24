@@ -1,5 +1,6 @@
 package com.swamisamarthpet.adminsspi.activity
 
+import android.app.Activity
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
@@ -21,9 +22,15 @@ import kotlinx.coroutines.flow.collect
 import javax.inject.Inject
 import android.content.DialogInterface
 import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import com.github.dhaval2404.imagepicker.ImagePicker
+import com.swamisamarthpet.adminsspi.Constants
 import com.swamisamarthpet.adminsspi.data.util.CategoryApiState
+import java.io.File
 
 @AndroidEntryPoint
 class MachineActivity : AppCompatActivity() {
@@ -35,6 +42,7 @@ class MachineActivity : AppCompatActivity() {
     private lateinit var semiAutomaticMachinesList: List<HashMap<String,String>>
     @Inject
     lateinit var machinesAdapter: MachinesAdapter
+    var uri: Uri? = null
 
     @OptIn(InternalAPI::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,7 +66,6 @@ class MachineActivity : AppCompatActivity() {
                 }
 
                 btnDeleteCategoryMachineActivity.setOnClickListener {
-                    println("Chip Clicked")
                     val dialog = AlertDialog.Builder(this@MachineActivity)
                         dialog.apply {
                             setTitle("Delete Category")
@@ -73,6 +80,40 @@ class MachineActivity : AppCompatActivity() {
                     dialog.create()
                     dialog.show()
 
+                }
+
+                val startForProfileImageResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+                    val resultCode = result.resultCode
+                    val data = result.data
+
+                    if (resultCode == Activity.RESULT_OK) {
+                        uri = data?.data!!
+                        Glide.with(this@MachineActivity).load(uri).error(R.drawable.ic_launcher_foreground).into(imgCategoryImageMachineActivity)
+                    } else if (resultCode == ImagePicker.RESULT_ERROR) {
+                        Toast.makeText(this@MachineActivity, ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this@MachineActivity, "Task Cancelled", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                imgCategoryImageMachineActivity.setOnClickListener {
+                    ImagePicker.with(this@MachineActivity)
+                        .crop()
+                        .compress(512)
+                        .maxResultSize(512,512)
+                        .createIntent { intent ->
+                            startForProfileImageResult.launch(intent)
+                        }
+                }
+
+                btnUpdateCategoryMachineActivity.setOnClickListener {
+                    if(uri!=null){
+                        categoryViewModel.updateCategory(Constants.currentCategory?.categoryId!!,File(uri?.path!!))
+                        handleUpdateResponse()
+                    }
+                    else{
+                        Toast.makeText(this@MachineActivity,"Please change the image first",Toast.LENGTH_SHORT).show()
+                    }
                 }
 
                 edtTxtSearchBarCategoriesFrag.addTextChangedListener(object: TextWatcher {
@@ -166,7 +207,7 @@ class MachineActivity : AppCompatActivity() {
             machinesViewModel.machineApiStateFlow.collect {
                 when (it) {
                     is MachineApiState.LoadingGetAllMachines -> {
-                            binding.machineActProgressBarLayout.visibility = View.VISIBLE
+                        binding.machineActProgressBarLayout.visibility = View.VISIBLE
                     }
                     is MachineApiState.SuccessGetAllMachines -> {
                         binding.apply{
@@ -181,13 +222,12 @@ class MachineActivity : AppCompatActivity() {
                         }
                     }
                     is MachineApiState.FailureGetAllMachines -> {
-//                            binding.machineActProgressBarLayout.visibility = View.GONE
+                            binding.machineActProgressBarLayout.visibility = View.GONE
                     }
                     is MachineApiState.EmptyGetAllMachines -> {
-//                            binding.machineActProgressBarLayout.visibility = View.GONE
+                            binding.machineActProgressBarLayout.visibility = View.GONE
                     }
                     else -> {
-//                            binding.machineActProgressBarLayout.visibility = View.GONE
                     }
                 }
             }
@@ -199,14 +239,43 @@ class MachineActivity : AppCompatActivity() {
             categoryViewModel.categoryApiStateFlow.collect {
                 when (it) {
                     is CategoryApiState.SuccessDeleteCategory -> {
-                        if( it.data ==1 ){
+                        if( it.data == 1 ){
                             Toast.makeText(this@MachineActivity,"Category Deleted SuccessFully",Toast.LENGTH_SHORT).show()
                             val intent = Intent(this@MachineActivity,MainActivity::class.java)
+                            intent.putExtra("redirect",1)
                             startActivity(intent)
                         }
                     }
                     else -> {
                     }
+                }
+            }
+        }
+    }
+
+    fun handleUpdateResponse(){
+        lifecycleScope.launchWhenStarted {
+            categoryViewModel.categoryApiStateFlow.collect { categoryApiState ->
+                when(categoryApiState){
+                    is CategoryApiState.LoadingUpdateCategory -> {
+                        binding.btnUpdateCategoryMachineActivity.isClickable = false
+                    }
+                    is CategoryApiState.SuccessUpdateCategory -> {
+                        if(categoryApiState.data==1){
+                            binding.btnUpdateCategoryMachineActivity.isClickable = true
+                            Toast.makeText(this@MachineActivity,"Category Updated Successfully",Toast.LENGTH_SHORT).show()
+                        }
+                        else{
+                            binding.btnUpdateCategoryMachineActivity.isClickable = true
+                            Toast.makeText(this@MachineActivity,"Failed to update category",Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    is CategoryApiState.FailureUpdateCategory -> {
+                        binding.btnUpdateCategoryMachineActivity.isClickable = true
+                        Toast.makeText(this@MachineActivity,"Failed to update category",Toast.LENGTH_SHORT).show()
+                        println("failed update category ${categoryApiState.msg}")
+                    }
+                    else -> {}
                 }
             }
         }
