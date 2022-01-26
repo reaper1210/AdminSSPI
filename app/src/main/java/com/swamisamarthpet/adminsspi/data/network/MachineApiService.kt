@@ -43,4 +43,16 @@ class MachineApiService
         }
     }
 
+    suspend fun deleteMachine(machineId:Int, categoryName: String): Int {
+        return client.post("https://sspi-test-api.herokuapp.com/v1/deleteMachine"){
+            body = MultiPartFormDataContent(
+                formData {
+                    append("machineId",machineId)
+                    append("categoryName",categoryName)
+                    append("adminPassword","SSPI@VASAI")
+                }
+            )
+        }
+    }
+
 }

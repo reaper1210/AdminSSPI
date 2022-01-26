@@ -58,6 +58,10 @@ class MachineDetailsActivity : AppCompatActivity() {
             machineViewModel.getMachineById(machineId, Constants.currentCategory!!.categoryName)
             handleMachineDetailsResponse()
         }
+        if(binding.topLayoutChipMachineDetailsActivity.text == "Delete Machine"){
+            machineViewModel.deleteMachine(machineId,Constants.currentCategory!!.categoryName)
+            handleDeleteMachineResponse()
+        }
 
         setContentView(binding.root)
     }
@@ -91,6 +95,35 @@ class MachineDetailsActivity : AppCompatActivity() {
                         binding.machineDetailsActProgressBarLayout.visibility = View.GONE
                     }
                     is MachineApiState.EmptyGetMachineById -> {
+                        binding.machineDetailsActProgressBarLayout.visibility = View.GONE
+                    }
+                    else -> {}
+                }
+            }
+
+        }
+    }
+
+    private fun handleDeleteMachineResponse() {
+        lifecycleScope.launchWhenStarted {
+            machineViewModel.machineApiStateFlow.collect { machineApiState ->
+                when (machineApiState) {
+                    is MachineApiState.LoadingDeleteMachine -> {
+                        binding.apply{
+                            machineDetailsActProgressBarLayout.visibility = View.VISIBLE
+                        }
+                    }
+                    is MachineApiState.SuccessDeleteMachine-> {
+                        if(machineApiState.data == 1){
+                            binding.machineDetailsActProgressBarLayout.visibility = View.GONE
+                            val intent = Intent(this@MachineDetailsActivity,MachineActivity::class.java)
+                            startActivity(intent)
+                        }
+                    }
+                    is MachineApiState.FailureDeleteMachine -> {
+                        binding.machineDetailsActProgressBarLayout.visibility = View.GONE
+                    }
+                    is MachineApiState.EmptyDeleteMachine -> {
                         binding.machineDetailsActProgressBarLayout.visibility = View.GONE
                     }
                     else -> {}

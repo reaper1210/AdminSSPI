@@ -43,4 +43,17 @@ class MachineViewModel
             }
     }
 
+    fun deleteMachine(machineId: Int, categoryName: String) = viewModelScope.launch{
+        machineRepository.deleteMachine(machineId,categoryName)
+            .onStart {
+                _Machine_apiStateFlow.value = MachineApiState.LoadingDeleteMachine
+            }
+            .catch { e->
+                _Machine_apiStateFlow.value = MachineApiState.FailureDeleteMachine(e)
+            }
+            .collect{ response->
+                _Machine_apiStateFlow.value = MachineApiState.SuccessDeleteMachine(response)
+            }
+    }
+
 }

@@ -20,4 +20,8 @@ class MachineRepository
         emit(machineApiService.getMachineById(machineId,categoryName))
     }.flowOn(Dispatchers.IO)
 
+    fun deleteMachine(machineId: Int,categoryName: String): Flow<Int> = flow {
+        emit(machineApiService.deleteMachine(machineId,categoryName))
+    }.flowOn(Dispatchers.IO)
+
 }
