@@ -43,21 +43,23 @@ class MachineActivity : AppCompatActivity() {
     @Inject
     lateinit var machinesAdapter: MachinesAdapter
     var uri: Uri? = null
+    var updated = false
 
     @OptIn(InternalAPI::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMachineBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val categoryName = intent.getStringExtra("categoryName")
-        val categoryImg = intent.getByteArrayExtra("categoryImg")
-        val categoryId = intent.getIntExtra("categoryId",0)
 
-        if((categoryName!=null) and (categoryImg!=null)){
+//        val categoryName = intent.getStringExtra("categoryName")
+//        val categoryImg = intent.getByteArrayExtra("categoryImg")
+//        val categoryId = intent.getIntExtra("categoryId",0)
+
+        if((Constants.currentCategory?.categoryName!=null) and (Constants.currentCategory?.categoryImage!=null)){
             machinesAdapter = MachinesAdapter()
             binding.apply {
-                txtCategoryNameMachineActivity.text = categoryName
-                Glide.with(binding.root).load(categoryImg).into(imgCategoryImageMachineActivity)
+                txtCategoryNameMachineActivity.text = Constants.currentCategory?.categoryName
+                Glide.with(binding.root).load(Constants.currentCategoryImageByteArray).into(imgCategoryImageMachineActivity)
                 noMachinesLayout.visibility = View.GONE
 
                 recyclerMachinesActivity.apply {
@@ -72,7 +74,7 @@ class MachineActivity : AppCompatActivity() {
                             setMessage("Are you sure to delete category?")
                             setNegativeButton("Cancel", null)
                             setPositiveButton("Delete") { dialog, which ->
-                                categoryViewModel.deleteCategory(categoryId)
+                                categoryViewModel.deleteCategory(Constants.currentCategory?.categoryId!!)
                                 handleDeleteResponse()
                                 dialog?.cancel()
                             }
@@ -193,7 +195,7 @@ class MachineActivity : AppCompatActivity() {
 
 
             }
-            machinesViewModel.getAllMachines(categoryName!!)
+            machinesViewModel.getAllMachines(Constants.currentCategory?.categoryName!!)
 
             handleResponse()
 
@@ -264,6 +266,7 @@ class MachineActivity : AppCompatActivity() {
                         if(categoryApiState.data==1){
                             binding.btnUpdateCategoryMachineActivity.isClickable = true
                             Toast.makeText(this@MachineActivity,"Category Updated Successfully",Toast.LENGTH_SHORT).show()
+                            updated = true
                         }
                         else{
                             binding.btnUpdateCategoryMachineActivity.isClickable = true
@@ -327,6 +330,18 @@ class MachineActivity : AppCompatActivity() {
             }
         }
         machinesAdapter.submitList(temp)
+    }
+
+    override fun onBackPressed() {
+        if(updated) {
+            Intent(this@MachineActivity, MainActivity::class.java).also {
+                it.putExtra("redirect", 1)
+                startActivity(it)
+            }
+        }
+        else {
+            super.onBackPressed()
+        }
     }
 
 }

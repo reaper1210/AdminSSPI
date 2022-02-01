@@ -1,15 +1,31 @@
 package com.swamisamarthpet.adminsspi.activity
 
+import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.RelativeLayout
+import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
+import com.github.dhaval2404.imagepicker.ImagePicker
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputLayout
 import com.smarteist.autoimageslider.IndicatorView.animation.type.IndicatorAnimationType
 import com.smarteist.autoimageslider.SliderAnimations
 import com.swamisamarthpet.adminsspi.Constants
+import com.swamisamarthpet.adminsspi.R
 import com.swamisamarthpet.adminsspi.adapter.ImageSliderAdapter
 import com.swamisamarthpet.adminsspi.adapter.MachineDetailsAdapter
 import com.swamisamarthpet.adminsspi.adapter.PartsAdapter
@@ -36,15 +52,14 @@ class MachineDetailsActivity : AppCompatActivity() {
 
     private val partViewModel: PartViewModel by viewModels()
     private val machineViewModel: MachineViewModel by viewModels()
-
     @Inject
     lateinit var machineDetailsAdapter: MachineDetailsAdapter
-
     @Inject
     lateinit var partsAdapter: PartsAdapter
     private lateinit var binding: ActivityMachineDetailsBinding
     private lateinit var machine: Machine
     private var parts: List<HashMap<String, String>> = ArrayList()
+    private lateinit var imagesArrayList: ArrayList<Any>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,15 +67,28 @@ class MachineDetailsActivity : AppCompatActivity() {
 
         binding.txtNoSpareParts.visibility = View.GONE
         machineDetailsAdapter = MachineDetailsAdapter()
+        machineDetailsAdapter.activityContext = this
         partsAdapter = PartsAdapter()
         val machineId = intent.getIntExtra("machineId", 0)
         if (Constants.currentCategory?.categoryName != null) {
             machineViewModel.getMachineById(machineId, Constants.currentCategory!!.categoryName)
             handleMachineDetailsResponse()
         }
-        if(binding.topLayoutChipMachineDetailsActivity.text == "Delete Machine"){
-            machineViewModel.deleteMachine(machineId,Constants.currentCategory!!.categoryName)
-            handleDeleteMachineResponse()
+
+        Constants.startForSliderImageResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            val resultCode = result.resultCode
+            val data = result.data
+
+            if (resultCode == Activity.RESULT_OK) {
+                val uri = data?.data!!
+                imagesArrayList.removeAt(Constants.sliderChangeImagePosition)
+                imagesArrayList.add(Constants.sliderChangeImagePosition,uri)
+                Glide.with(this).load(uri).error(R.drawable.ic_launcher_foreground).into(Constants.sliderImageViewList[Constants.sliderChangeImagePosition])
+            } else if (resultCode == ImagePicker.RESULT_ERROR) {
+                Toast.makeText(this, ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show()
+            }
         }
 
         setContentView(binding.root)
@@ -116,8 +144,10 @@ class MachineDetailsActivity : AppCompatActivity() {
                     is MachineApiState.SuccessDeleteMachine-> {
                         if(machineApiState.data == 1){
                             binding.machineDetailsActProgressBarLayout.visibility = View.GONE
-                            val intent = Intent(this@MachineDetailsActivity,MachineActivity::class.java)
-                            startActivity(intent)
+                            Intent(this@MachineDetailsActivity,MachineActivity::class.java).also{
+                                startActivity(it)
+                            }
+
                         }
                     }
                     is MachineApiState.FailureDeleteMachine -> {
@@ -167,20 +197,19 @@ class MachineDetailsActivity : AppCompatActivity() {
 
     private fun setValues() {
 
+        Constants.currentMachineDetails.clear()
         val machineDetails = machine.machineDetails.split(";")
-        val detailsList = ArrayList<Details>()
         for (detail in machineDetails) {
             val keyValue = detail.split(":")
-            detailsList.add(Details(keyValue[0], keyValue[1]))
+            Constants.currentMachineDetails.add(Details(keyValue[0], keyValue[1]))
         }
-        machineDetailsAdapter.submitList(detailsList)
+        machineDetailsAdapter.submitList(Constants.currentMachineDetails)
 
-        val imagesArrayList = ArrayList<Any>()
+        imagesArrayList = ArrayList<Any>()
         val imagesStringList = machine.machineImages.split(";")
         for (imageString in imagesStringList) {
             val decompressor = Inflater()
-            val stringArray =
-                imageString.replace("[", "").replace("]", "").replace(" ", "").split(",")
+            val stringArray = imageString.replace("[", "").replace("]", "").replace(" ", "").split(",")
             val bytes = ByteArray(imageString.length)
             for (i in 0..stringArray.lastIndex) {
                 val byte = stringArray[i].toByte()
@@ -197,12 +226,19 @@ class MachineDetailsActivity : AppCompatActivity() {
             val decompressedImageByteArray = bos.toByteArray()
             imagesArrayList.add(decompressedImageByteArray)
         }
-        if(getVideoIdFromUrl(machine.youtubeVideoLink)!=null){
-            imagesArrayList.add(getVideoIdFromUrl(machine.youtubeVideoLink).toString())
-        }
-        val imageSliderAdapter = ImageSliderAdapter(imagesArrayList, this@MachineDetailsActivity)
+
+        Constants.sliderImageViewList.clear()
+        val imageSliderAdapter = ImageSliderAdapter(imagesArrayList,this)
 
         binding.apply {
+
+            topLayoutChipMachineDetailsActivity.setOnClickListener {
+                if(binding.topLayoutChipMachineDetailsActivity.text == "Delete Machine"){
+                    machineViewModel.deleteMachine(machine.machineId,Constants.currentCategory!!.categoryName)
+                    handleDeleteMachineResponse()
+                }
+            }
+
             txtProductNameMachineDetails.text = machine.machineName
             imageMachineDetailsAct.apply {
                 setSliderAdapter(imageSliderAdapter)
@@ -225,23 +261,60 @@ class MachineDetailsActivity : AppCompatActivity() {
                 btnViewPdf.visibility = View.INVISIBLE
             }
 
-            btnViewPdf.setOnClickListener {
-                binding.apply {
-                    pdfViewMachineDetailsAct.fromBytes(getPdfDecompressedByteArray(machine.machinePdf))
-                        .onError {
-                            println("Pdf Error: ${it.message}")
-                        }
-                        .enableSwipe(true)
-                        .load()
-
-                    pdfViewMachineDetailsAct.visibility = View.VISIBLE
-                    topLayoutChipMachineDetailsActivity.visibility = View.VISIBLE
-                }
+            edtTxtYoutubeLink.apply{
+                setText(machine.youtubeVideoLink)
+                isEnabled = false
             }
 
-            topLayoutChipMachineDetailsActivity.setOnClickListener {
-                pdfViewMachineDetailsAct.visibility = View.GONE
-                topLayoutChipMachineDetailsActivity.visibility = View.GONE
+            youtubeLinkEditIcon.setOnClickListener {
+                edtTxtYoutubeLink.isEnabled = true
+            }
+
+            btnViewPdf.setOnClickListener {
+                pdfViewMachineDetailsAct.fromBytes(getPdfDecompressedByteArray(machine.machinePdf))
+                    .onError {
+                        println("Pdf Error: ${it.message}")
+                    }
+                    .enableSwipe(true)
+                    .load()
+
+                pdfViewMachineDetailsAct.visibility = View.VISIBLE
+                topLayoutChipMachineDetailsActivity.visibility = View.VISIBLE
+            }
+
+//            topLayoutChipMachineDetailsActivity.setOnClickListener {
+//                pdfViewMachineDetailsAct.visibility = View.GONE
+//                topLayoutChipMachineDetailsActivity.visibility = View.GONE
+//            }
+
+            btnMachineDetailActivityAddDetail.setOnClickListener {
+                val builder = AlertDialog.Builder(this@MachineDetailsActivity)
+                val activityInflater = this@MachineDetailsActivity.layoutInflater
+                val view = activityInflater.inflate(R.layout.dialog_add_detail,null)
+
+                builder.setView(view)
+                val dialog=builder.create()
+                dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+                val edtTxtAddDetailFeature = view.findViewById<EditText>(R.id.edtTxtAddDetailFeature)
+                val edtTxtAddDetailDetail = view.findViewById<EditText>(R.id.edtTxtAddDetailDetail)
+                val btnAddDetail = view.findViewById<ImageView>(R.id.btnAddDetailConfirm)
+
+                btnAddDetail.setOnClickListener {
+                    val feature = edtTxtAddDetailFeature.text.toString()
+                    val detail = edtTxtAddDetailDetail.text.toString()
+                    if(feature.isNotEmpty() && detail.isNotEmpty()){
+                        Constants.currentMachineDetails.add(Details(feature, detail))
+                        machineDetailsAdapter.notifyItemInserted(Constants.currentMachineDetails.size)
+                        dialog.cancel()
+                    }
+                    else{
+                        Toast.makeText(this@MachineDetailsActivity,"Please fill the fields",Toast.LENGTH_SHORT).show()
+                    }
+
+                }
+
+                dialog.show()
             }
 
             btnBackMachineDetailsActivity.setOnClickListener {
@@ -284,20 +357,4 @@ class MachineDetailsActivity : AppCompatActivity() {
         return bos.toByteArray()
     }
 
-    private fun getVideoIdFromUrl(url: String): String? {
-        val expression = "(?<=watch\\?v=|/videos/|embed\\/|youtu.be\\/|\\/v\\/|\\/e\\/|watch\\?v%3D|watch\\?feature=player_embedded&v=|%2Fvideos%2F|embed%\u200C\u200B2F|youtu.be%2F|%2Fv%2F)[^#\\&\\?\\n]*";
-
-        if (url.trim().isEmpty()) {
-            return null
-        }
-        val pattern = Pattern.compile(expression)
-        val matcher = pattern.matcher(url)
-        try {
-            if (matcher.find())
-                return matcher.group()
-        } catch (e: ArrayIndexOutOfBoundsException) {
-            e.printStackTrace()
-        }
-        return null
-    }
 }

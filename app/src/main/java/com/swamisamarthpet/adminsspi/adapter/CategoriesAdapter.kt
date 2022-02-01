@@ -49,10 +49,8 @@ class CategoriesAdapter
                     txtCategoryName.isHorizontalFadingEdgeEnabled = true
                     itemView.setOnClickListener {
                         Constants.currentCategory = category
+                        Constants.currentCategoryImageByteArray = decompressedImageByteArray
                         val intent = Intent(it.context, MachineActivity::class.java)
-                        intent.putExtra("categoryId",category.categoryId)
-                        intent.putExtra("categoryName",category.categoryName)
-                        intent.putExtra("categoryImg",decompressedImageByteArray)
                         it.context.startActivity(intent)
                     }
                 }

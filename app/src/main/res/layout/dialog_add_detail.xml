@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="16dp"
+    android:outlineAmbientShadowColor="@color/primaryLight">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/background">
+
+        <EditText
+            android:id="@+id/edtTxtAddDetailFeature"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="32dp"
+            android:layout_marginVertical="8dp"
+            android:padding="8dp"
+            android:hint="Feature"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
+            android:textSize="20sp"
+            android:background="@drawable/shadow_background"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/edtTxtAddDetailDetail"/>
+
+        <EditText
+            android:id="@+id/edtTxtAddDetailDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="32dp"
+            android:layout_marginVertical="8dp"
+            android:padding="8dp"
+            android:hint="Detail"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
+            android:textSize="20sp"
+            android:background="@drawable/shadow_background"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/edtTxtAddDetailFeature"
+            app:layout_constraintBottom_toTopOf="@id/btnAddDetailConfirm"/>
+
+        <ImageView
+            android:id="@+id/btnAddDetailConfirm"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginVertical="8dp"
+            android:src="@drawable/btn_add_detail"
+            app:layout_constraintTop_toBottomOf="@id/edtTxtAddDetailDetail"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@id/edtTxtAddDetailDetail"
+            app:layout_constraintEnd_toEndOf="@id/edtTxtAddDetailDetail"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>
