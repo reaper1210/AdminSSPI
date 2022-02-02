@@ -1,40 +1,35 @@
 package com.swamisamarthpet.adminsspi.activity
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.ContentUris
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.database.Cursor
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
-import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.RelativeLayout
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResult
-import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.core.net.toFile
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
 import com.github.dhaval2404.imagepicker.ImagePicker
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.textfield.TextInputLayout
 import com.smarteist.autoimageslider.IndicatorView.animation.type.IndicatorAnimationType
 import com.smarteist.autoimageslider.SliderAnimations
 import com.swamisamarthpet.adminsspi.Constants
@@ -47,7 +42,6 @@ import com.swamisamarthpet.adminsspi.data.model.Machine
 import com.swamisamarthpet.adminsspi.data.util.MachineApiState
 import com.swamisamarthpet.adminsspi.data.util.PartApiState
 import com.swamisamarthpet.adminsspi.databinding.ActivityMachineDetailsBinding
-import com.swamisamarthpet.adminsspi.databinding.SliderImageItemBinding
 import com.swamisamarthpet.adminsspi.ui.MachineViewModel
 import com.swamisamarthpet.adminsspi.ui.PartViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -55,12 +49,9 @@ import kotlinx.coroutines.flow.collect
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.*
-import java.util.regex.Matcher
-import java.util.regex.Pattern
 import java.util.zip.Inflater
 import javax.inject.Inject
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
+
 
 @AndroidEntryPoint
 class MachineDetailsActivity : AppCompatActivity() {
@@ -79,6 +70,7 @@ class MachineDetailsActivity : AppCompatActivity() {
     private lateinit var resultLauncherPdf: ActivityResultLauncher<Intent>
     var machinePdf: ByteArray? = null
 
+    @SuppressLint("Range")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMachineDetailsBinding.inflate(layoutInflater)
@@ -110,13 +102,12 @@ class MachineDetailsActivity : AppCompatActivity() {
         }
 
         resultLauncherPdf = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result: ActivityResult ->
+
             val data = result.data
             if(data!=null){
                 val uri = data.data
-                val file = File(uri?.path!!).readBytes()
-//                println("path: ${file.absolutePath}")
-//                println("PDF Bytearray: ${File(uri?.path.toString()).readBytes()}")
-//                Toast.makeText(this, "${File(uri?.path!!).readBytes()}", Toast.LENGTH_SHORT).show()
+                val inputStream = contentResolver.openInputStream(uri!!)
+                machinePdf = inputStream?.readBytes()
 
             }
         }
@@ -127,7 +118,7 @@ class MachineDetailsActivity : AppCompatActivity() {
     override fun onBackPressed() {
         if (binding.pdfViewMachineDetailsAct.visibility == View.VISIBLE) {
             binding.pdfViewMachineDetailsAct.visibility = View.GONE
-            binding.topLayoutChipMachineDetailsActivity.visibility = View.GONE
+            binding.topLayoutChipMachineDetailsActivity.text = "Delete Machine"
         } else {
             super.onBackPressed()
         }
