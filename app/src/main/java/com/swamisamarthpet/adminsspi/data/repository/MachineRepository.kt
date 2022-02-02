@@ -24,4 +24,14 @@ class MachineRepository
         emit(machineApiService.deleteMachine(machineId,categoryName))
     }.flowOn(Dispatchers.IO)
 
+    fun updateMachine(categoryName:String, machineId:Int,machineName:String, machineDetails:String,
+                      machinePDF:ByteArray, machineImages:ArrayList<ByteArray>, youtubeVideoLink:String): Flow<Int> = flow {
+        emit(machineApiService.updateMachine(categoryName, machineId, machineName, machineDetails, machinePDF, machineImages, youtubeVideoLink))
+    }.flowOn(Dispatchers.IO)
+
+    fun insertMachine(categoryName:String, machineName:String, machineDetails:String,
+                      machinePDF:ByteArray, machineImages:ArrayList<ByteArray>, youtubeVideoLink:String): Flow<Int> = flow {
+        emit(machineApiService.insertMachine(categoryName, machineName, machineDetails, machinePDF, machineImages, youtubeVideoLink))
+    }.flowOn(Dispatchers.IO)
+
 }

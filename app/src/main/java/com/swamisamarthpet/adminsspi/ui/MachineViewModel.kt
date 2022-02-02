@@ -56,4 +56,18 @@ class MachineViewModel
             }
     }
 
+    fun updateMachine(categoryName:String, machineId:Int,machineName:String, machineDetails:String,
+                      machinePDF:ByteArray, machineImages:ArrayList<ByteArray>, youtubeVideoLink:String) = viewModelScope.launch{
+        machineRepository.updateMachine(categoryName, machineId, machineName, machineDetails, machinePDF, machineImages, youtubeVideoLink)
+            .onStart {
+                _Machine_apiStateFlow.value = MachineApiState.LoadingUpdateMachine
+            }
+            .catch { e->
+                _Machine_apiStateFlow.value = MachineApiState.FailureUpdateMachine(e)
+            }
+            .collect{ response->
+                _Machine_apiStateFlow.value = MachineApiState.SuccessUpdateMachine(response)
+            }
+    }
+
 }

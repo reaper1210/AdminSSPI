@@ -9,9 +9,11 @@ import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
+import io.ktor.util.*
 import java.io.File
 import javax.inject.Inject
 
+@OptIn(InternalAPI::class)
 class CategoriesApiService @Inject constructor(){
 
     private val client = HttpClient(Android) {

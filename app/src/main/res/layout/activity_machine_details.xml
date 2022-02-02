@@ -47,7 +47,7 @@
         android:layout_height="0dp"
         android:background="@color/background"
         app:layout_constraintTop_toBottomOf="@id/topLayoutMachineDetailsAct"
-        app:layout_constraintBottom_toTopOf="@id/btnInterestedMachineDetailsAct">
+        app:layout_constraintBottom_toTopOf="@id/btnUpdateMachineDetailsAct">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:background="@color/background"
@@ -326,7 +326,7 @@
     </ScrollView>
 
     <RelativeLayout
-        android:id="@+id/btnInterestedMachineDetailsAct"
+        android:id="@+id/btnUpdateMachineDetailsAct"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:background="@drawable/gradient_rect_interested"

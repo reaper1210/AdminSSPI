@@ -7,8 +7,11 @@ import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
+import io.ktor.http.*
+import io.ktor.util.*
 import javax.inject.Inject
 
+@OptIn(InternalAPI::class)
 class MachineApiService
 @Inject constructor() {
 
@@ -49,6 +52,56 @@ class MachineApiService
                 formData {
                     append("machineId",machineId)
                     append("categoryName",categoryName)
+                    append("adminPassword","SSPI@VASAI")
+                }
+            )
+        }
+    }
+
+    suspend fun insertMachine(categoryName:String, machineName:String, machineDetails:String,
+        machinePDF:ByteArray, machineImages:ArrayList<ByteArray>, youtubeVideoLink:String): Int{
+        return client.post("https://sspi-test-api.herokuapp.com/v1/insertMachine"){
+            body = MultiPartFormDataContent(
+                formData {
+                    append("categoryName",categoryName)
+                    append("machineName",machineName)
+                    append("machineDetails",machineDetails)
+                    append("machinePdf",machinePDF, Headers.build {
+                        append(HttpHeaders.ContentType, "file/pdf")
+                        append(HttpHeaders.ContentDisposition, "filename=${machineName}.pdf")
+                    })
+                    for(machineImage in machineImages){
+                        append("machineImg",machineImage,Headers.build {
+                            append(HttpHeaders.ContentType, "image/png")
+                            append(HttpHeaders.ContentDisposition, "filename=${machineName}.png")
+                        })
+                    }
+                    append("youtubeVideoLink",youtubeVideoLink)
+                    append("adminPassword","SSPI@VASAI")
+                }
+            )
+        }
+    }
+
+    suspend fun updateMachine(categoryName:String, machineId:Int,machineName:String, machineDetails:String,
+                              machinePDF:ByteArray, machineImages:ArrayList<ByteArray>, youtubeVideoLink:String): Int{
+        return client.post("https://sspi-test-api.herokuapp.com/v1/updateMachine"){
+            body = MultiPartFormDataContent(
+                formData {
+                    append("categoryName",categoryName)
+                    append("machineId",machineId)
+                    append("machineDetails",machineDetails)
+                    append("machinePdf",machinePDF, Headers.build {
+                        append(HttpHeaders.ContentType, "file/pdf")
+                        append(HttpHeaders.ContentDisposition, "filename=${machineName}.pdf")
+                    })
+                    for(machineImage in machineImages){
+                        append("machineImg",machineImage,Headers.build {
+                            append(HttpHeaders.ContentType, "image/png")
+                            append(HttpHeaders.ContentDisposition, "filename=${machineName}.png")
+                        })
+                    }
+                    append("youtubeVideoLink",youtubeVideoLink)
                     append("adminPassword","SSPI@VASAI")
                 }
             )

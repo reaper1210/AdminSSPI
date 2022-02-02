@@ -1,21 +1,34 @@
 package com.swamisamarthpet.adminsspi.activity
 
+import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.DocumentsContract
+import android.provider.MediaStore
+import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.net.toFile
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -34,11 +47,13 @@ import com.swamisamarthpet.adminsspi.data.model.Machine
 import com.swamisamarthpet.adminsspi.data.util.MachineApiState
 import com.swamisamarthpet.adminsspi.data.util.PartApiState
 import com.swamisamarthpet.adminsspi.databinding.ActivityMachineDetailsBinding
+import com.swamisamarthpet.adminsspi.databinding.SliderImageItemBinding
 import com.swamisamarthpet.adminsspi.ui.MachineViewModel
 import com.swamisamarthpet.adminsspi.ui.PartViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.util.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -56,10 +71,13 @@ class MachineDetailsActivity : AppCompatActivity() {
     lateinit var machineDetailsAdapter: MachineDetailsAdapter
     @Inject
     lateinit var partsAdapter: PartsAdapter
+    private lateinit var imageSliderAdapter: ImageSliderAdapter
     private lateinit var binding: ActivityMachineDetailsBinding
     private lateinit var machine: Machine
     private var parts: List<HashMap<String, String>> = ArrayList()
-    private lateinit var imagesArrayList: ArrayList<Any>
+    private lateinit var imagesArrayList: ArrayList<ByteArray>
+    private lateinit var resultLauncherPdf: ActivityResultLauncher<Intent>
+    var machinePdf: ByteArray? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,12 +100,24 @@ class MachineDetailsActivity : AppCompatActivity() {
             if (resultCode == Activity.RESULT_OK) {
                 val uri = data?.data!!
                 imagesArrayList.removeAt(Constants.sliderChangeImagePosition)
-                imagesArrayList.add(Constants.sliderChangeImagePosition,uri)
-                Glide.with(this).load(uri).error(R.drawable.ic_launcher_foreground).into(Constants.sliderImageViewList[Constants.sliderChangeImagePosition])
+                imagesArrayList.add(Constants.sliderChangeImagePosition,File(uri.path!!).readBytes())
+                imageSliderAdapter.notifyDataSetChanged()
             } else if (resultCode == ImagePicker.RESULT_ERROR) {
                 Toast.makeText(this, ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        resultLauncherPdf = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result: ActivityResult ->
+            val data = result.data
+            if(data!=null){
+                val uri = data.data
+                val file = File(uri?.path!!).readBytes()
+//                println("path: ${file.absolutePath}")
+//                println("PDF Bytearray: ${File(uri?.path.toString()).readBytes()}")
+//                Toast.makeText(this, "${File(uri?.path!!).readBytes()}", Toast.LENGTH_SHORT).show()
+
             }
         }
 
@@ -114,6 +144,7 @@ class MachineDetailsActivity : AppCompatActivity() {
                     }
                     is MachineApiState.SuccessGetMachineById -> {
                         machine = machineApiState.data
+                        machinePdf = getPdfDecompressedByteArray(machine.machinePdf)
                         binding.machineDetailsActProgressBarLayout.visibility = View.GONE
                         partViewModel.getAllParts(machine.machineName)
                         handlePartsResponse()
@@ -145,6 +176,7 @@ class MachineDetailsActivity : AppCompatActivity() {
                         if(machineApiState.data == 1){
                             binding.machineDetailsActProgressBarLayout.visibility = View.GONE
                             Intent(this@MachineDetailsActivity,MachineActivity::class.java).also{
+                                it.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
                                 startActivity(it)
                             }
 
@@ -195,6 +227,36 @@ class MachineDetailsActivity : AppCompatActivity() {
         }
     }
 
+    private fun handleUpdateMachineResponse() {
+        lifecycleScope.launchWhenStarted {
+            machineViewModel.machineApiStateFlow.collect { machineApiState ->
+                when (machineApiState) {
+                    is MachineApiState.LoadingUpdateMachine -> {
+                        binding.machineDetailsActProgressBarLayout.visibility = View.VISIBLE
+                    }
+                    is MachineApiState.SuccessUpdateMachine -> {
+                        if(machineApiState.data == 1){
+                            binding.machineDetailsActProgressBarLayout.visibility = View.GONE
+                            Toast.makeText(this@MachineDetailsActivity, "Machine Updated", Toast.LENGTH_SHORT).show()
+                            val intent = Intent(this@MachineDetailsActivity,MachineActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                            startActivity(intent)
+                        }
+                    }
+                    is MachineApiState.FailureUpdateMachine -> {
+                        println("Update Failed ${machineApiState.msg}")
+                    }
+                    is MachineApiState.EmptyUpdateMachine -> {
+
+                    }
+                    else -> {
+
+                    }
+                }
+            }
+        }
+    }
+
     private fun setValues() {
 
         Constants.currentMachineDetails.clear()
@@ -205,7 +267,7 @@ class MachineDetailsActivity : AppCompatActivity() {
         }
         machineDetailsAdapter.submitList(Constants.currentMachineDetails)
 
-        imagesArrayList = ArrayList<Any>()
+        imagesArrayList = ArrayList<ByteArray>()
         val imagesStringList = machine.machineImages.split(";")
         for (imageString in imagesStringList) {
             val decompressor = Inflater()
@@ -226,16 +288,17 @@ class MachineDetailsActivity : AppCompatActivity() {
             val decompressedImageByteArray = bos.toByteArray()
             imagesArrayList.add(decompressedImageByteArray)
         }
-
-        Constants.sliderImageViewList.clear()
-        val imageSliderAdapter = ImageSliderAdapter(imagesArrayList,this)
-
+        imageSliderAdapter = ImageSliderAdapter(imagesArrayList,this)
         binding.apply {
 
             topLayoutChipMachineDetailsActivity.setOnClickListener {
-                if(binding.topLayoutChipMachineDetailsActivity.text == "Delete Machine"){
+                if(topLayoutChipMachineDetailsActivity.text == "Delete Machine"){
                     machineViewModel.deleteMachine(machine.machineId,Constants.currentCategory!!.categoryName)
                     handleDeleteMachineResponse()
+                }
+                else{
+                    pdfViewMachineDetailsAct.visibility = View.GONE
+                    topLayoutChipMachineDetailsActivity.text = "Delete Machine"
                 }
             }
 
@@ -244,12 +307,6 @@ class MachineDetailsActivity : AppCompatActivity() {
                 setSliderAdapter(imageSliderAdapter)
                 setIndicatorAnimation(IndicatorAnimationType.WORM)
                 setSliderTransformAnimation(SliderAnimations.SIMPLETRANSFORMATION)
-            }
-            btnInterestedMachineDetailsAct.setOnClickListener {
-                val intent = Intent(this@MachineDetailsActivity, MainActivity::class.java)
-                intent.putExtra("supportFragmentRedirect", true)
-                intent.putExtra("productName", machine.machineName)
-                startActivity(intent)
             }
 
             machineDetailsRecycler.apply {
@@ -268,18 +325,43 @@ class MachineDetailsActivity : AppCompatActivity() {
 
             youtubeLinkEditIcon.setOnClickListener {
                 edtTxtYoutubeLink.isEnabled = true
+                edtTxtYoutubeLink.performClick()
             }
 
             btnViewPdf.setOnClickListener {
-                pdfViewMachineDetailsAct.fromBytes(getPdfDecompressedByteArray(machine.machinePdf))
-                    .onError {
-                        println("Pdf Error: ${it.message}")
-                    }
-                    .enableSwipe(true)
-                    .load()
+                if(machinePdf != null){
+                    pdfViewMachineDetailsAct.fromBytes(machinePdf!!)
+                        .onError {
+                            println("Pdf Error: ${it.message}")
+                        }
+                        .enableSwipe(true)
+                        .load()
+                    pdfViewMachineDetailsAct.visibility = View.VISIBLE
+                    topLayoutChipMachineDetailsActivity.text = "X Close PDF"
+                }
+                else{
+                    pdfViewMachineDetailsAct.fromBytes(getPdfDecompressedByteArray(machine.machinePdf))
+                        .onError {
+                            println("Pdf Error: ${it.message}")
+                        }
+                        .enableSwipe(true)
+                        .load()
 
-                pdfViewMachineDetailsAct.visibility = View.VISIBLE
-                topLayoutChipMachineDetailsActivity.visibility = View.VISIBLE
+                    pdfViewMachineDetailsAct.visibility = View.VISIBLE
+                    topLayoutChipMachineDetailsActivity.text = "X Close PDF"
+                }
+            }
+
+            pdfEditIcon.setOnClickListener {
+                if(ActivityCompat.checkSelfPermission(this@MachineDetailsActivity,
+                    Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                    ActivityCompat.requestPermissions(this@MachineDetailsActivity,
+                        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),1
+                    )
+                }
+                else{
+                    selectPDF()
+                }
             }
 
 //            topLayoutChipMachineDetailsActivity.setOnClickListener {
@@ -320,8 +402,47 @@ class MachineDetailsActivity : AppCompatActivity() {
             btnBackMachineDetailsActivity.setOnClickListener {
                 onBackPressed()
             }
+
+            btnUpdateMachineDetailsAct.setOnClickListener {
+                val allKeyArray = ArrayList<String>()
+                val allValuesArray = ArrayList<String>()
+                val keysAndValuesMergedArray = ArrayList<String>()
+                for(detail in Constants.currentMachineDetails){
+                    allKeyArray.add(detail.key)
+                    allValuesArray.add(detail.value)
+                }
+                for(i in 0..allKeyArray.lastIndex){
+                    keysAndValuesMergedArray.add(allKeyArray[i]+":"+allValuesArray[i])
+                }
+                val machineDetailsString = keysAndValuesMergedArray.joinToString(";")
+
+                machineViewModel.updateMachine(Constants.currentCategory!!.categoryName,
+                machine.machineId,machine.machineName,machineDetailsString,
+                    machinePdf!!,imagesArrayList,edtTxtYoutubeLink.text.toString())
+                handleUpdateMachineResponse()
+            }
         }
 
+    }
+
+    private fun selectPDF() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT)
+        intent.type = "application/pdf"
+        resultLauncherPdf.launch(intent)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if(requestCode==1 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            selectPDF()
+        }
+        else{
+            Toast.makeText(applicationContext,"Permission Denied",Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun setPartRecycler() {
