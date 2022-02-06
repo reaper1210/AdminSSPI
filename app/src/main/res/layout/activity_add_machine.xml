@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.MachineDetailsActivity"
+    android:background="@color/background">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/topLayoutMachineDetailsAct"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@drawable/gradient_rect_3"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/btnBackMachineDetailsActivity"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="16dp"
+            android:contentDescription="@string/sample_text"
+            android:rotation="180"
+            android:src="@drawable/ic_right_arrow"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/topLayoutChipMachineDetailsActivity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="X  Close PDF"
+            android:textColor="@color/primary"
+            app:chipBackgroundColor="@color/primaryLight"
+            app:layout_constraintHorizontal_bias=".9"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btnBackMachineDetailsActivity"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/background"
+        app:layout_constraintTop_toBottomOf="@id/topLayoutMachineDetailsAct"
+        app:layout_constraintBottom_toTopOf="@id/btnUpdateMachineDetailsAct">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:background="@color/background"
+            android:layout_width="match_parent"
+            android:layout_height= "wrap_content"
+            tools:context=".activity.MachineDetailsActivity">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/machineDetailsMidLayout"
+                android:layout_width="match_parent"
+                android:layout_height="400dp"
+                style="@style/MachineDetailsMidLayout"
+                android:backgroundTint="#FAFAFA"
+                android:outlineSpotShadowColor="@color/primary"
+                app:cardElevation="5dp"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/white">
+
+                    <com.smarteist.autoimageslider.SliderView
+                        android:id="@+id/imageMachineDetailsAct"
+                        android:layout_width="match_parent"
+                        android:layout_height="300dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:sliderAnimationDuration="600"
+                        app:sliderAutoCycleDirection="back_and_forth"
+                        app:sliderIndicatorAnimationDuration="320"
+                        app:sliderIndicatorGravity="center_horizontal|bottom"
+                        app:sliderIndicatorMargin="15dp"
+                        app:sliderIndicatorOrientation="horizontal"
+                        app:sliderIndicatorPadding="3dp"
+                        app:sliderIndicatorRadius="2dp"
+                        app:sliderIndicatorSelectedColor="@color/primary"
+                        app:sliderIndicatorUnselectedColor="@color/primaryLight" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/btnAddToPopular"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="4dp"
+                        android:backgroundTint="@color/primary"
+                        android:textColor="@color/primaryLight"
+                        android:text="Add Image"
+                        app:layout_constraintHorizontal_weight="3"
+                        app:layout_constraintTop_toBottomOf="@id/imageMachineDetailsAct"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+
+                    <EditText
+                        android:id="@+id/txtProductNameMachineDetails"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="12dp"
+                        android:layout_marginVertical="24dp"
+                        android:hint="Machine PDF"
+                        android:textColorHint="@color/primary"
+                        android:textSize="28sp"
+                        android:textColor="@color/primary"
+                        android:maxLines="1"
+                        app:layout_constraintHorizontal_weight="6"
+                        app:layout_constraintTop_toBottomOf="@+id/btnAddToPopular"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/detailsCardViewMachineDetailsAct"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:outlineSpotShadowColor="@color/primaryLight"
+                android:backgroundTint="#DAEAF5"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="8dp"
+                app:strokeColor="@color/background"
+                app:strokeWidth="1dp"
+                app:layout_constraintTop_toBottomOf="@id/machineDetailsMidLayout">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:background="@color/primaryLight">
+
+                    <TextView
+                        android:id="@+id/txtMachineDetails"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="8dp"
+                        android:textSize="18sp"
+                        android:textColor="@color/primary"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        android:text="Machine Details"/>
+
+                    <ImageView
+                        android:id="@+id/btnMachineDetailActivityAddDetail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_marginStart="4dp"
+                        android:src="@drawable/ic_add"
+                        app:layout_constraintTop_toTopOf="@id/txtMachineDetails"
+                        app:layout_constraintBottom_toBottomOf="@id/txtMachineDetails"
+                        app:layout_constraintStart_toEndOf="@id/txtMachineDetails"/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/machineDetailsRecycler"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="8dp"
+                        app:layout_constraintTop_toBottomOf="@id/txtMachineDetails"
+                        android:background="@color/primaryLight"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <EditText
+                android:id="@+id/edtTxtYoutubeLink"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="16dp"
+                android:background="@drawable/shadow_background"
+                android:hint="Youtube Link"
+                android:padding="12dp"
+                android:textColor="@color/primary"
+                android:textColorHint="@color/primary"
+                app:layout_constraintHorizontal_weight="7"
+                app:layout_constraintTop_toBottomOf="@id/detailsCardViewMachineDetailsAct"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <RelativeLayout
+                android:id="@+id/pdfCardViewMachineDetailsAct"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="16dp"
+                app:layout_constraintHorizontal_weight="7"
+                app:layout_constraintTop_toBottomOf="@id/edtTxtYoutubeLink"
+                app:layout_constraintEnd_toStartOf="@id/btnViewPdf"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btnAddPdf"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:cardCornerRadius="10dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/gradient_rect_interested" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:drawablePadding="12dp"
+                            android:text="View PDF"
+                            android:textColor="@color/primary"
+                            android:textSize="24sp"
+                            app:drawableEndCompat="@drawable/ic_arrow_noline" />
+
+                    </RelativeLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </RelativeLayout>
+
+            <ImageView
+                android:id="@+id/btnViewPdf"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_baseline_remove_red_eye_24"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintTop_toTopOf="@id/pdfCardViewMachineDetailsAct"
+                app:layout_constraintBottom_toBottomOf="@id/pdfCardViewMachineDetailsAct"
+                app:layout_constraintStart_toEndOf="@id/pdfCardViewMachineDetailsAct"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/partsLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/pdfCardViewMachineDetailsAct"
+                android:layout_margin="8dp">
+
+                <TextView
+                    android:id="@+id/txtPartLayoutHeading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="Spare Parts"
+                    android:textColor="#4EB4FD"
+                    android:textSize="18sp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/partsRecycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/txtPartLayoutHeading"/>
+
+                <ImageView
+                    android:id="@+id/btnAddPart"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_margin="8dp"
+                    android:src="@drawable/add_btn"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+                <RelativeLayout
+                    android:id="@+id/partsRecyclerViewProgressBarLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_below="@id/txtPartLayoutHeading"
+                    android:background="@color/background">
+
+                    <ProgressBar
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"/>
+
+                </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/txtNoSpareParts"
+                    android:layout_width="wrap_content"
+                    android:layout_height="80dp"
+                    android:text="No Spare Parts to show"
+                    android:textColor="@color/primary"
+                    android:textSize="18sp"
+                    app:layout_constraintTop_toBottomOf="@id/txtPartLayoutHeading"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+
+    <RelativeLayout
+        android:id="@+id/btnUpdateMachineDetailsAct"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/gradient_rect_interested"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Update"
+            android:textSize="24sp"
+            android:textColor="#008FF5"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/machineDetailsActProgressBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/background"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"/>
+
+    </RelativeLayout>
+
+    <com.github.barteksc.pdfviewer.PDFView
+        android:id="@+id/pdfViewMachineDetailsAct"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/topLayoutMachineDetailsAct" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
