@@ -52,7 +52,6 @@ import java.util.*
 import java.util.zip.Inflater
 import javax.inject.Inject
 
-
 @AndroidEntryPoint
 class MachineDetailsActivity : AppCompatActivity() {
 
@@ -75,6 +74,7 @@ class MachineDetailsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMachineDetailsBinding.inflate(layoutInflater)
 
+        Constants.currentMachineDetails.clear()
         binding.txtNoSpareParts.visibility = View.GONE
         machineDetailsAdapter = MachineDetailsAdapter()
         machineDetailsAdapter.activityContext = this
@@ -354,11 +354,6 @@ class MachineDetailsActivity : AppCompatActivity() {
                     selectPDF()
                 }
             }
-
-//            topLayoutChipMachineDetailsActivity.setOnClickListener {
-//                pdfViewMachineDetailsAct.visibility = View.GONE
-//                topLayoutChipMachineDetailsActivity.visibility = View.GONE
-//            }
 
             btnMachineDetailActivityAddDetail.setOnClickListener {
                 val builder = AlertDialog.Builder(this@MachineDetailsActivity)

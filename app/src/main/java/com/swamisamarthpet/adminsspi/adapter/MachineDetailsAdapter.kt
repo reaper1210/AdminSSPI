@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -23,9 +24,9 @@ class MachineDetailsAdapter
 @Inject
 constructor(): ListAdapter<Details, MachineDetailsAdapter.MachineDetailsViewHolder>(Diff) {
 
-    lateinit var activityContext: MachineDetailsActivity
+    lateinit var activityContext: AppCompatActivity
 
-    class MachineDetailsViewHolder(private val binding: DetailsSingleRowBinding, private val adapterContext: MachineDetailsAdapter, private val activityContext: MachineDetailsActivity): RecyclerView.ViewHolder(binding.root){
+    class MachineDetailsViewHolder(private val binding: DetailsSingleRowBinding, private val adapterContext: MachineDetailsAdapter, private val activityContext: AppCompatActivity): RecyclerView.ViewHolder(binding.root){
 
         fun bind(details: Details){
             binding.apply{

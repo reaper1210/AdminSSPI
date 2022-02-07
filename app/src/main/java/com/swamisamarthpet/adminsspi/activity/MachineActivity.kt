@@ -118,6 +118,12 @@ class MachineActivity : AppCompatActivity() {
                     }
                 }
 
+                btnAddMachine.setOnClickListener {
+                    Intent(this@MachineActivity,AddMachineActivity::class.java).also {
+                        startActivity(it)
+                    }
+                }
+
                 edtTxtSearchBarCategoriesFrag.addTextChangedListener(object: TextWatcher {
                     override fun beforeTextChanged(
                         s: CharSequence?,
