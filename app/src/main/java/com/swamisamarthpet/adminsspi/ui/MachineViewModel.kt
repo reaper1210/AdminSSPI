@@ -70,4 +70,18 @@ class MachineViewModel
             }
     }
 
+    fun insertMachine(categoryName:String, machineName:String, machineDetails:String,
+                      machinePDF:ByteArray, machineImages:ArrayList<ByteArray>, youtubeVideoLink:String) = viewModelScope.launch{
+        machineRepository.insertMachine(categoryName, machineName, machineDetails, machinePDF, machineImages, youtubeVideoLink)
+            .onStart {
+                _Machine_apiStateFlow.value = MachineApiState.LoadingInsertMachine
+            }
+            .catch { e->
+                _Machine_apiStateFlow.value = MachineApiState.FailureInsertMachine(e)
+            }
+            .collect{ response->
+                _Machine_apiStateFlow.value = MachineApiState.SuccessInsertMachine(response)
+            }
+    }
+
 }

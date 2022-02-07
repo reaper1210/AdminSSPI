@@ -1,6 +1,7 @@
 package com.swamisamarthpet.adminsspi.activity
 
 import android.Manifest
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -12,26 +13,40 @@ import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.github.dhaval2404.imagepicker.ImagePicker
+import com.smarteist.autoimageslider.IndicatorView.animation.type.IndicatorAnimationType
+import com.smarteist.autoimageslider.SliderAnimations
 import com.swamisamarthpet.adminsspi.Constants
 import com.swamisamarthpet.adminsspi.R
+import com.swamisamarthpet.adminsspi.adapter.ImageSliderAdapter
 import com.swamisamarthpet.adminsspi.adapter.MachineDetailsAdapter
 import com.swamisamarthpet.adminsspi.data.model.Details
+import com.swamisamarthpet.adminsspi.data.util.MachineApiState
 import com.swamisamarthpet.adminsspi.databinding.ActivityAddMachineBinding
+import com.swamisamarthpet.adminsspi.ui.MachineViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
+import java.io.File
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class AddMachineActivity : AppCompatActivity() {
 
+    private val machineViewModel: MachineViewModel by viewModels()
     @Inject
     lateinit var machineDetailsAdapter: MachineDetailsAdapter
     private lateinit var binding: ActivityAddMachineBinding
+    private lateinit var imageSliderAdapter: ImageSliderAdapter
+    private lateinit var imagesArrayList: ArrayList<ByteArray>
 
     private var machinePdf: ByteArray? = null
     private var resultLauncherPdf = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result: ActivityResult ->
@@ -41,6 +56,21 @@ class AddMachineActivity : AppCompatActivity() {
             val inputStream = contentResolver.openInputStream(uri!!)
             machinePdf = inputStream?.readBytes()
             binding.btnAddPdf.setImageResource(R.drawable.ic_edit)
+        }
+    }
+
+    private val startForSliderImageResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+        val resultCode = result.resultCode
+        val data = result.data
+
+        if (resultCode == Activity.RESULT_OK) {
+            val uri = data?.data!!
+            imagesArrayList.add(File(uri.path!!).readBytes())
+            imageSliderAdapter.notifyDataSetChanged()
+        } else if (resultCode == ImagePicker.RESULT_ERROR) {
+            Toast.makeText(this, ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -60,6 +90,30 @@ class AddMachineActivity : AppCompatActivity() {
             machineDetailsRecycler.apply{
                 adapter = machineDetailsAdapter
                 layoutManager = LinearLayoutManager(this@AddMachineActivity)
+            }
+
+            imagesArrayList = ArrayList()
+            imageSliderAdapter = ImageSliderAdapter(imagesArrayList,this@AddMachineActivity)
+            machineImagesSliderAddMachineAct.apply {
+                setSliderAdapter(imageSliderAdapter)
+                setIndicatorAnimation(IndicatorAnimationType.WORM)
+                setSliderTransformAnimation(SliderAnimations.SIMPLETRANSFORMATION)
+            }
+
+            btnAddImageAddMachineActivity.setOnClickListener {
+                ImagePicker.with(this@AddMachineActivity)
+                    .crop()
+                    .compress(512)
+                    .maxResultSize(512,512)
+                    .createIntent { intent ->
+                        startForSliderImageResult.launch(intent)
+                    }
+
+            }
+
+            btnRemoveImageAddMachineActivity.setOnClickListener {
+                imagesArrayList.removeAt(machineImagesSliderAddMachineAct.currentPagePosition)
+                imageSliderAdapter.notifyDataSetChanged()
             }
 
             btnMachineDetailActivityAddDetail.setOnClickListener {
@@ -105,6 +159,50 @@ class AddMachineActivity : AppCompatActivity() {
                 }
             }
 
+            btnAddMachineAddMachineAct.setOnClickListener { it: View? ->
+                val detailsFeaturesList = ArrayList<String>()
+                val detailsDescList = ArrayList<String>()
+
+                for(i in 0..Constants.currentMachineDetails.lastIndex){
+                    detailsFeaturesList.add(Constants.currentMachineDetails[i].key)
+                    detailsDescList.add(Constants.currentMachineDetails[i].value)
+                }
+
+                var detailsKeysAndValuesMerged = String()
+
+                for(i in 0..detailsFeaturesList.lastIndex){
+                    if(i!=detailsFeaturesList.lastIndex){
+                        detailsKeysAndValuesMerged+=detailsFeaturesList[i]+":"+detailsDescList[i]+";"
+                    }
+                    else{
+                        detailsKeysAndValuesMerged+=detailsFeaturesList[i]+":"+detailsDescList[i]
+                    }
+
+                }
+                when {
+                    detailsKeysAndValuesMerged.isEmpty() -> {
+                        Toast.makeText(this@AddMachineActivity, "Details Empty", Toast.LENGTH_SHORT).show()
+                    }
+                    edtTxtMachineNameMachineDetails.text.isEmpty() -> {
+                        edtTxtMachineNameMachineDetails.error = "Cannot be Empty"
+                    }
+                    edtTxtYoutubeLink.text.isEmpty() -> {
+                        edtTxtYoutubeLink.error = "Cannot be Empty"
+                    }
+                    imagesArrayList.isNullOrEmpty() -> {
+                        Toast.makeText(this@AddMachineActivity, "Add Atleast one Image", Toast.LENGTH_SHORT).show()
+                    }
+                    machinePdf!!.isEmpty() -> {
+                        Toast.makeText(this@AddMachineActivity, "Add PDF", Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {
+                        machineViewModel.insertMachine(Constants.currentCategory!!.categoryName,edtTxtMachineNameMachineDetails.text.toString(),
+                            detailsKeysAndValuesMerged, machinePdf!!, imagesArrayList, edtTxtYoutubeLink.text.toString())
+                        handleInsertMachineResponse()
+                    }
+                }
+            }
+
             btnViewPdf.setOnClickListener {
                 if(machinePdf != null){
                     pdfViewMachineDetailsAct.fromBytes(machinePdf!!)
@@ -132,6 +230,37 @@ class AddMachineActivity : AppCompatActivity() {
 
         }
 
+    }
+
+    private fun handleInsertMachineResponse() {
+        lifecycleScope.launchWhenStarted {
+            machineViewModel.machineApiStateFlow.collect { machineApiState ->
+                when (machineApiState) {
+                    is MachineApiState.LoadingInsertMachine -> {
+                        binding.addMachineActProgressBarLayout.visibility = View.VISIBLE
+                    }
+                    is MachineApiState.SuccessInsertMachine -> {
+
+                        if(machineApiState.data == 1){
+                            binding.addMachineActProgressBarLayout.visibility = View.GONE
+                            Toast.makeText(this@AddMachineActivity, "Machine Inserted", Toast.LENGTH_SHORT).show()
+                            val intent = Intent(this@AddMachineActivity,MachineActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                            startActivity(intent)
+                        }
+                    }
+                    is MachineApiState.FailureInsertMachine -> {
+                        println("Insert Failed ${machineApiState.msg}")
+                    }
+                    is MachineApiState.EmptyInsertMachine -> {
+
+                    }
+                    else -> {
+
+                    }
+                }
+            }
+        }
     }
 
     private fun selectPDF() {

@@ -49,7 +49,7 @@
         android:layout_height="0dp"
         android:background="@color/background"
         app:layout_constraintTop_toBottomOf="@id/topLayoutMachineDetailsAct"
-        app:layout_constraintBottom_toTopOf="@id/btnUpdateMachineDetailsAct">
+        app:layout_constraintBottom_toTopOf="@id/btnAddMachineAddMachineAct">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:background="@color/background"
@@ -74,7 +74,7 @@
                     android:background="@color/white">
 
                     <com.smarteist.autoimageslider.SliderView
-                        android:id="@+id/imageMachineDetailsAct"
+                        android:id="@+id/machineImagesSliderAddMachineAct"
                         android:layout_width="match_parent"
                         android:layout_height="300dp"
                         android:layout_marginTop="8dp"
@@ -101,10 +101,10 @@
                         android:textColor="@color/primaryLight"
                         android:text="Add Image"
                         app:layout_constraintHorizontal_weight="3"
-                        app:layout_constraintTop_toBottomOf="@id/imageMachineDetailsAct"
+                        app:layout_constraintTop_toBottomOf="@id/machineImagesSliderAddMachineAct"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toStartOf="@id/btnRemoveImageAddMachineActivity"
-                        app:layout_constraintBottom_toTopOf="@id/edtTxtProductNameMachineDetails"/>
+                        app:layout_constraintBottom_toTopOf="@id/edtTxtMachineNameMachineDetails"/>
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/btnRemoveImageAddMachineActivity"
@@ -115,13 +115,13 @@
                         android:textColor="@color/primaryLight"
                         android:text="Remove Image"
                         app:layout_constraintHorizontal_weight="3"
-                        app:layout_constraintTop_toBottomOf="@id/imageMachineDetailsAct"
+                        app:layout_constraintTop_toBottomOf="@id/machineImagesSliderAddMachineAct"
                         app:layout_constraintStart_toEndOf="@id/btnAddImageAddMachineActivity"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintBottom_toTopOf="@id/edtTxtProductNameMachineDetails"/>
+                        app:layout_constraintBottom_toTopOf="@id/edtTxtMachineNameMachineDetails"/>
 
                     <EditText
-                        android:id="@+id/edtTxtProductNameMachineDetails"
+                        android:id="@+id/edtTxtMachineNameMachineDetails"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginHorizontal="12dp"
@@ -135,7 +135,7 @@
                         android:maxLines="1"
                         android:background="@drawable/shadow_background_white"
                         app:layout_constraintHorizontal_weight="6"
-                        app:layout_constraintTop_toBottomOf="@+id/btnAddToPopular"
+                        app:layout_constraintTop_toBottomOf="@+id/btnAddImageAddMachineActivity"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"/>
@@ -274,7 +274,7 @@
     </ScrollView>
 
     <RelativeLayout
-        android:id="@+id/btnUpdateMachineDetailsAct"
+        android:id="@+id/btnAddMachineAddMachineAct"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:background="@drawable/gradient_rect_interested"
@@ -291,7 +291,7 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/machineDetailsActProgressBarLayout"
+        android:id="@+id/addMachineActProgressBarLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/background"
