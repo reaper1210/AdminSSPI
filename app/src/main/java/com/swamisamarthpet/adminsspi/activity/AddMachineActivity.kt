@@ -84,7 +84,6 @@ class AddMachineActivity : AppCompatActivity() {
         machineDetailsAdapter.activityContext = this
         machineDetailsAdapter.submitList(Constants.currentMachineDetails)
 
-        Constants.currentMachineDetails.clear()
         binding.apply{
 
             machineDetailsRecycler.apply{

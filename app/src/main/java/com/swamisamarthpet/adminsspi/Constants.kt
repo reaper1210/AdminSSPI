@@ -10,4 +10,6 @@ object Constants {
     var currentMachineDetails = ArrayList<Details>()
     var startForSliderImageResult: ActivityResultLauncher<Intent>? = null
     var sliderChangeImagePosition: Int = 0
+    var currentMachine: Machine? = null
+    var currentPartDetails = ArrayList<Details>()
 }

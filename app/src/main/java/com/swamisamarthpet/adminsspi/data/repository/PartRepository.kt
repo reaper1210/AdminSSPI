@@ -18,4 +18,16 @@ class PartRepository
         emit(partApiService.getPartById(partId, machineName))
     }.flowOn(Dispatchers.IO)
 
+    fun insertPart(machineName: String, partName: String, partDetails: String, partImages: ArrayList<ByteArray>):Flow<Int> = flow {
+        emit(partApiService.insertPart(machineName, partName, partDetails, partImages))
+    }.flowOn(Dispatchers.IO)
+
+    fun updatePart(machineName: String, partId: Int, partName: String, partDetails: String, partImages: ArrayList<ByteArray>):Flow<Int> = flow {
+        emit(partApiService.updatePart(machineName, partId, partName, partDetails, partImages))
+    }.flowOn(Dispatchers.IO)
+
+    fun deletePart(machineName: String,partId: Int):Flow<Int> = flow {
+        emit(partApiService.deletePart(machineName, partId))
+    }.flowOn(Dispatchers.IO)
+
 }

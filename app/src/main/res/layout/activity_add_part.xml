@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.AddPartActivity"
+    android:background="@color/background">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/topLayoutAddPartAct"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@drawable/gradient_rect_3"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/btnBackAddPartAct"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="16dp"
+            android:contentDescription="@string/sample_text"
+            android:rotation="180"
+            android:src="@drawable/ic_right_arrow"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/background"
+        app:layout_constraintTop_toBottomOf="@id/topLayoutAddPartAct"
+        app:layout_constraintBottom_toTopOf="@id/btnAddPartAddPartAct">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:background="@color/background"
+            android:layout_width="match_parent"
+            android:layout_height= "wrap_content"
+            tools:context=".activity.MachineDetailsActivity">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/partDetailsMidLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="-8dp"
+                android:backgroundTint="@color/white"
+                style="@style/MachineDetailsMidLayout"
+                android:outlineSpotShadowColor="@color/primary"
+                app:cardElevation="5dp"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/white">
+
+                    <com.smarteist.autoimageslider.SliderView
+                        android:id="@+id/partImagesSliderAddPartAct"
+                        android:layout_width="match_parent"
+                        android:layout_height="300dp"
+                        android:layout_marginTop="8dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:sliderAnimationDuration="600"
+                        app:sliderAutoCycleDirection="back_and_forth"
+                        app:sliderIndicatorAnimationDuration="320"
+                        app:sliderIndicatorGravity="center_horizontal|bottom"
+                        app:sliderIndicatorMargin="15dp"
+                        app:sliderIndicatorOrientation="horizontal"
+                        app:sliderIndicatorPadding="3dp"
+                        app:sliderIndicatorRadius="2dp"
+                        app:sliderIndicatorSelectedColor="@color/primary"
+                        app:sliderIndicatorUnselectedColor="@color/primaryLight" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/btnAddImageAddPartAct"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="4dp"
+                        android:backgroundTint="@color/primary"
+                        android:textColor="@color/primaryLight"
+                        android:text="Add Image"
+                        app:layout_constraintHorizontal_weight="3"
+                        app:layout_constraintTop_toBottomOf="@id/partImagesSliderAddPartAct"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/btnRemoveImageAddPartAct"
+                        app:layout_constraintBottom_toTopOf="@id/edtTxtPartNameAddPartAct"/>
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/btnRemoveImageAddPartAct"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="4dp"
+                        android:backgroundTint="@color/primary"
+                        android:textColor="@color/primaryLight"
+                        android:text="Remove Image"
+                        app:layout_constraintHorizontal_weight="3"
+                        app:layout_constraintTop_toBottomOf="@id/partImagesSliderAddPartAct"
+                        app:layout_constraintStart_toEndOf="@id/btnAddImageAddPartAct"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintBottom_toTopOf="@id/edtTxtPartNameAddPartAct"/>
+
+                    <EditText
+                        android:id="@+id/edtTxtPartNameAddPartAct"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="12dp"
+                        android:layout_marginBottom="24dp"
+                        android:paddingVertical="4dp"
+                        android:paddingHorizontal="12dp"
+                        android:hint="Part Name"
+                        android:textColorHint="@color/primary"
+                        android:textSize="24sp"
+                        android:textColor="@color/primary"
+                        android:maxLines="1"
+                        android:background="@drawable/shadow_background_white"
+                        app:layout_constraintHorizontal_weight="6"
+                        app:layout_constraintTop_toBottomOf="@+id/btnAddImageAddPartAct"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/detailsCardViewAddPartAct"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:outlineSpotShadowColor="@color/primaryLight"
+                android:backgroundTint="#DAEAF5"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="8dp"
+                app:strokeColor="@color/background"
+                app:strokeWidth="1dp"
+                app:layout_constraintTop_toBottomOf="@id/partDetailsMidLayout">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:background="@color/primaryLight">
+
+                    <TextView
+                        android:id="@+id/txtPartDetails"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="8dp"
+                        android:textSize="18sp"
+                        android:textColor="@color/primary"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        android:text="Machine Details"/>
+
+                    <ImageView
+                        android:id="@+id/btnAddDetailAddPartAct"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_marginStart="4dp"
+                        android:src="@drawable/ic_add"
+                        app:layout_constraintTop_toTopOf="@id/txtPartDetails"
+                        app:layout_constraintBottom_toBottomOf="@id/txtPartDetails"
+                        app:layout_constraintStart_toEndOf="@id/txtPartDetails"/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/partDetailsRecyclerAddPartAct"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="8dp"
+                        app:layout_constraintTop_toBottomOf="@id/txtPartDetails"
+                        android:background="@color/primaryLight"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+
+    <RelativeLayout
+        android:id="@+id/btnAddPartAddPartAct"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/gradient_rect_interested"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:id="@+id/txtAddPartAddPartAct"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Add Part"
+            android:textColor="#008FF5"
+            android:textSize="24sp" />
+
+        <ProgressBar
+            android:id="@+id/btnAddPartProgressBarLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:layout_centerInParent="true"
+            android:visibility="gone"/>
+
+    </RelativeLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

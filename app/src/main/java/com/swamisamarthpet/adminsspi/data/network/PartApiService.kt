@@ -7,6 +7,7 @@ import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
+import io.ktor.http.*
 import javax.inject.Inject
 
 class PartApiService
@@ -39,6 +40,56 @@ class PartApiService
                 formData {
                     append("partId",partId)
                     append("machineName",machineName)
+                }
+            )
+        }
+    }
+
+    suspend fun insertPart(machineName: String, partName: String, partDetails: String, partImages: ArrayList<ByteArray>): Int {
+        return client.post("https://sspi-test-api.herokuapp.com/v1/insertPart"){
+            body = MultiPartFormDataContent(
+                formData {
+                    append("machineName",machineName)
+                    append("partName",partName)
+                    append("partDetails",partDetails)
+                    for(partImage in partImages){
+                        append("partImage",partImage, Headers.build {
+                            append(HttpHeaders.ContentType, "image/png")
+                            append(HttpHeaders.ContentDisposition, "filename=${partName}.png")
+                        })
+                    }
+                    append("adminPassword","SSPI@VASAI")
+                }
+            )
+        }
+    }
+
+    suspend fun updatePart(machineName: String, partId: Int, partName: String, partDetails: String, partImages: ArrayList<ByteArray>): Int {
+        return client.post("https://sspi-test-api.herokuapp.com/v1/updatePart"){
+            body = MultiPartFormDataContent(
+                formData {
+                    append("machineName",machineName)
+                    append("partId",partId)
+                    append("partDetails",partDetails)
+                    for(partImage in partImages){
+                        append("partImage",partImage, Headers.build {
+                            append(HttpHeaders.ContentType, "image/png")
+                            append(HttpHeaders.ContentDisposition, "filename=${partName}.png")
+                        })
+                    }
+                    append("adminPassword","SSPI@VASAI")
+                }
+            )
+        }
+    }
+
+    suspend fun deletePart(machineName: String, partId: Int): Int {
+        return client.post("https://sspi-test-api.herokuapp.com/v1/deletePart"){
+            body = MultiPartFormDataContent(
+                formData {
+                    append("machineName",machineName)
+                    append("partId",partId)
+                    append("adminPassword","SSPI@VASAI")
                 }
             )
         }

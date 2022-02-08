@@ -110,6 +110,7 @@ class MachineDetailsActivity : AppCompatActivity() {
                 machinePdf = inputStream?.readBytes()
 
             }
+
         }
 
         setContentView(binding.root)
@@ -407,6 +408,14 @@ class MachineDetailsActivity : AppCompatActivity() {
                     machinePdf!!,imagesArrayList,edtTxtYoutubeLink.text.toString())
                 handleUpdateMachineResponse()
             }
+
+            btnAddPart.setOnClickListener {
+                Intent(this@MachineDetailsActivity,AddPartActivity::class.java).also{
+                    startActivity(it)
+                    Constants.currentMachine = machine
+                }
+            }
+
         }
 
     }

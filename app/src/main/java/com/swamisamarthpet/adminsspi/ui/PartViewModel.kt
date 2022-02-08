@@ -42,4 +42,43 @@ class PartViewModel
             }
     }
 
+    fun insertPart(machineName: String, partName: String, partDetails: String, partImages: ArrayList<ByteArray>) = viewModelScope.launch {
+        partRepository.insertPart(machineName,partName,partDetails,partImages)
+            .onStart {
+                _part_apiStateFlow.value = PartApiState.LoadingInsertPart
+            }
+            .catch { e->
+                _part_apiStateFlow.value = PartApiState.FailureInsertPart(e)
+            }
+            .collect { response->
+                _part_apiStateFlow.value = PartApiState.SuccessInsertPart(response)
+            }
+    }
+
+    fun updatePart(machineName: String, partId: Int, partName: String, partDetails: String, partImages: ArrayList<ByteArray>) = viewModelScope.launch {
+        partRepository.updatePart(machineName,partId,partName,partDetails,partImages)
+            .onStart {
+                _part_apiStateFlow.value = PartApiState.LoadingUpdatePart
+            }
+            .catch { e->
+                _part_apiStateFlow.value = PartApiState.FailureUpdatePart(e)
+            }
+            .collect { response->
+                _part_apiStateFlow.value = PartApiState.SuccessUpdatePart(response)
+            }
+    }
+
+    fun deletePart(machineName: String, partId: Int) = viewModelScope.launch {
+        partRepository.deletePart(machineName,partId)
+            .onStart {
+                _part_apiStateFlow.value = PartApiState.LoadingDeletePart
+            }
+            .catch { e->
+                _part_apiStateFlow.value = PartApiState.FailureDeletePart(e)
+            }
+            .collect { response->
+                _part_apiStateFlow.value = PartApiState.SuccessDeletePart(response)
+            }
+    }
+
 }

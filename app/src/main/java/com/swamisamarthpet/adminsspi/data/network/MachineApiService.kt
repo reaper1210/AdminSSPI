@@ -83,7 +83,7 @@ class MachineApiService
         }
     }
 
-    suspend fun updateMachine(categoryName:String, machineId:Int,machineName:String, machineDetails:String,
+    suspend fun updateMachine(categoryName:String, machineId:Int, machineName:String, machineDetails:String,
                               machinePDF:ByteArray, machineImages:ArrayList<ByteArray>, youtubeVideoLink:String): Int{
         return client.post("https://sspi-test-api.herokuapp.com/v1/updateMachine"){
             body = MultiPartFormDataContent(
