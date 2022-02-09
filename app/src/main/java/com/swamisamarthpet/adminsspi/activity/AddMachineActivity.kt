@@ -133,7 +133,6 @@ class AddMachineActivity : AppCompatActivity() {
                     val detail = edtTxtAddDetailDetail.text.toString()
                     if(feature.isNotEmpty() && detail.isNotEmpty()){
                         Constants.currentMachineDetails.add(Details(feature, detail))
-                        println("details: ${Constants.currentMachineDetails}")
                         machineDetailsAdapter.notifyItemInserted(Constants.currentMachineDetails.size)
                         dialog.cancel()
                     }
@@ -158,7 +157,7 @@ class AddMachineActivity : AppCompatActivity() {
                 }
             }
 
-            btnAddMachineAddMachineAct.setOnClickListener { it: View? ->
+            btnAddMachineAddMachineAct.setOnClickListener {
                 val detailsFeaturesList = ArrayList<String>()
                 val detailsDescList = ArrayList<String>()
 

@@ -16,6 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AdminSSPI">
         <activity
+            android:name=".activity.PartDetailsActivity"
+            android:exported="false" />
+        <activity
             android:name=".activity.AddPartActivity"
             android:exported="false" />
         <activity

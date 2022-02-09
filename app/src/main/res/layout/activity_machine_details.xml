@@ -283,23 +283,32 @@
                     android:id="@+id/partsRecycler"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:layout_constraintTop_toBottomOf="@id/txtPartLayoutHeading"/>
+                    android:minHeight="64dp"
+                    app:layout_constraintTop_toBottomOf="@id/txtPartLayoutHeading"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
 
                 <ImageView
                     android:id="@+id/btnAddPart"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
-                    android:layout_margin="8dp"
                     android:src="@drawable/add_btn"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"/>
+                    app:layout_constraintHorizontal_bias="0.9"
+                    app:layout_constraintVertical_bias="0.8"
+                    app:layout_constraintTop_toTopOf="@id/partsRecycler"
+                    app:layout_constraintBottom_toBottomOf="@id/partsRecycler"
+                    app:layout_constraintStart_toStartOf="@id/partsRecycler"
+                    app:layout_constraintEnd_toEndOf="@id/partsRecycler"/>
 
                 <RelativeLayout
                     android:id="@+id/partsRecyclerViewProgressBarLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_below="@id/txtPartLayoutHeading"
-                    android:background="@color/background">
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintTop_toTopOf="@id/partsRecycler"
+                    app:layout_constraintBottom_toBottomOf="@id/partsRecycler"
+                    app:layout_constraintStart_toStartOf="@id/partsRecycler"
+                    app:layout_constraintEnd_toEndOf="@id/partsRecycler"
+                    android:background="@color/background"
+                    android:visibility="gone">
 
                     <ProgressBar
                         android:layout_width="wrap_content"

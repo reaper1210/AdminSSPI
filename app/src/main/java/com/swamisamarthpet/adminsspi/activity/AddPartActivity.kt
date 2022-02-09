@@ -2,6 +2,7 @@ package com.swamisamarthpet.adminsspi.activity
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
@@ -64,6 +65,8 @@ class AddPartActivity : AppCompatActivity() {
         Constants.currentPartDetails.clear()
         partDetailsAdapter = PartDetailsAdapter()
         partDetailsAdapter.activityContext = this
+        Constants.currentPartDetails.add(Details("Hello","World"))
+        Constants.currentPartDetails.add(Details("Hello","World"))
         partDetailsAdapter.submitList(Constants.currentPartDetails)
 
         binding.apply{
@@ -114,9 +117,8 @@ class AddPartActivity : AppCompatActivity() {
                     val feature = edtTxtAddDetailFeature.text.toString()
                     val detail = edtTxtAddDetailDetail.text.toString()
                     if(feature.isNotEmpty() && detail.isNotEmpty()){
-                        Constants.currentMachineDetails.add(Details(feature, detail))
-                        println("details: ${Constants.currentMachineDetails}")
-                        partDetailsAdapter.notifyItemInserted(Constants.currentMachineDetails.size)
+                        Constants.currentPartDetails.add(Details(feature, detail))
+                        partDetailsAdapter.notifyItemInserted(Constants.currentPartDetails.size)
                         dialog.cancel()
                     }
                     else{
@@ -184,13 +186,16 @@ class AddPartActivity : AppCompatActivity() {
                             txtAddPartAddPartAct.visibility = View.GONE
                             btnAddPartAddPartAct.isClickable = false
                         }
-
                     }
                     is PartApiState.SuccessInsertPart -> {
                         binding.apply {
                             btnAddPartProgressBarLayout.visibility = View.GONE
                             txtAddPartAddPartAct.visibility = View.VISIBLE
                             btnAddPartAddPartAct.isClickable = true
+                        }
+                        Intent(this@AddPartActivity,MachineDetailsActivity::class.java).also{
+                            it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                            startActivity(it)
                         }
                     }
                     is PartApiState.FailureInsertPart -> {

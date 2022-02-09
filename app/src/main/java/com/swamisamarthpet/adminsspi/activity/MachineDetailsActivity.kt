@@ -74,15 +74,26 @@ class MachineDetailsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMachineDetailsBinding.inflate(layoutInflater)
 
+        binding.machineDetailsActProgressBarLayout.visibility = View.VISIBLE
         Constants.currentMachineDetails.clear()
         binding.txtNoSpareParts.visibility = View.GONE
         machineDetailsAdapter = MachineDetailsAdapter()
         machineDetailsAdapter.activityContext = this
         partsAdapter = PartsAdapter()
-        val machineId = intent.getIntExtra("machineId", 0)
-        if (Constants.currentCategory?.categoryName != null) {
-            machineViewModel.getMachineById(machineId, Constants.currentCategory!!.categoryName)
-            handleMachineDetailsResponse()
+        if(Constants.currentMachine!=null){
+            machine = Constants.currentMachine!!
+            machinePdf = getPdfDecompressedByteArray(machine.machinePdf)
+            binding.machineDetailsActProgressBarLayout.visibility = View.GONE
+            partViewModel.getAllParts(machine.machineName)
+            handlePartsResponse()
+            setValues()
+        }
+        else{
+            val machineId = intent.getIntExtra("machineId", 0)
+            if (Constants.currentCategory?.categoryName != null) {
+                machineViewModel.getMachineById(machineId, Constants.currentCategory!!.categoryName)
+                handleMachineDetailsResponse()
+            }
         }
 
         Constants.startForSliderImageResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
@@ -136,6 +147,7 @@ class MachineDetailsActivity : AppCompatActivity() {
                     }
                     is MachineApiState.SuccessGetMachineById -> {
                         machine = machineApiState.data
+                        Constants.currentMachine = machine
                         machinePdf = getPdfDecompressedByteArray(machine.machinePdf)
                         binding.machineDetailsActProgressBarLayout.visibility = View.GONE
                         partViewModel.getAllParts(machine.machineName)

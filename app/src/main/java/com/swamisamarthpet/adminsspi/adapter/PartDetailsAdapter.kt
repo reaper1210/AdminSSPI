@@ -56,7 +56,6 @@ constructor(): ListAdapter<Details, PartDetailsAdapter.PartDetailsViewHolder>(Di
                         val feature = edtTxtAddDetailFeature.text.toString()
                         val detail = edtTxtAddDetailDetail.text.toString()
                         if(feature.isNotEmpty() && detail.isNotEmpty()){
-                            println("part: ${Constants.currentPartDetails}")
                             Constants.currentPartDetails.removeAt(position)
                             Constants.currentPartDetails.add(position,Details(feature, detail))
                             adapterContext.notifyItemChanged(position)

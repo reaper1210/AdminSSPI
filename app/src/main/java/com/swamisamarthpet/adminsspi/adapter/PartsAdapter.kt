@@ -1,5 +1,6 @@
 package com.swamisamarthpet.adminsspi.adapter
 
+import android.content.Intent
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -8,6 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.swamisamarthpet.adminsspi.R
+import com.swamisamarthpet.adminsspi.activity.PartDetailsActivity
 import com.swamisamarthpet.adminsspi.databinding.PartSingleRowBinding
 import java.io.ByteArrayOutputStream
 import java.util.zip.Inflater
@@ -46,10 +48,11 @@ constructor(): ListAdapter<HashMap<String,String>,PartsAdapter.PartsViewHolder>(
                     isSelected = true
                     isHorizontalFadingEdgeEnabled = true
                 }
-                itemView.setOnClickListener {
-//                    val intent = Intent(it.context, PartDetailsActivity::class.java)
-//                    intent.putExtra("partId",part["partId"]?.toInt())
-//                    it.context.startActivity(intent)
+                itemView.setOnClickListener { view ->
+                    Intent(view.context, PartDetailsActivity::class.java).also{
+                        it.putExtra("partId",part["partId"]?.toInt())
+                        view.context.startActivity(it)
+                    }
                 }
             }
         }
