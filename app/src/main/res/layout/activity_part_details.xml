@@ -8,7 +8,7 @@
     android:background="@color/background"
     tools:context=".activity.PartDetailsActivity">
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topLayoutPartDetailsAct"
         android:layout_width="match_parent"
         android:layout_height="64dp"
@@ -19,20 +19,35 @@
             android:id="@+id/btnBackPartDetailsActivity"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:layout_centerVertical="true"
             android:layout_marginHorizontal="8dp"
             android:src="@drawable/ic_right_arrow"
             android:rotation="180"
-            android:contentDescription="@string/sample_text" />
+            android:contentDescription="@string/sample_text"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
-    </RelativeLayout>
+        <com.google.android.material.chip.Chip
+            android:id="@+id/btnDeletePartDetailsActivity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delete Part"
+            android:textColor="@color/primary"
+            app:chipBackgroundColor="@color/primaryLight"
+            app:layout_constraintHorizontal_bias=".9"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btnBackPartDetailsActivity"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@color/background"
         app:layout_constraintTop_toBottomOf="@id/topLayoutPartDetailsAct"
-        app:layout_constraintBottom_toTopOf="@id/btnInterestedMachineDetailsAct">
+        app:layout_constraintBottom_toTopOf="@id/btnUpdatePartDetailsAct">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:background="@color/background"
@@ -74,25 +89,38 @@
                         app:sliderIndicatorSelectedColor="@color/primary"
                         app:sliderIndicatorUnselectedColor="@color/white" />
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/txtPartNamePartDetails"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="16dp"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="8dp"
                         android:layout_marginVertical="24dp"
-                        android:background="@color/white"
+                        android:text="@string/sample_text"
+                        android:textSize="28sp"
+                        android:textColor="@color/primary"
+                        android:maxLines="1"
+                        app:layout_constraintHorizontal_weight="6"
                         app:layout_constraintTop_toBottomOf="@id/imagePartDetailsAct"
-                        app:layout_constraintBottom_toBottomOf="parent">
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/btnAddToPopularPartDetailsAct"/>
 
-                        <TextView
-                            android:id="@+id/txtPartNamePartDetails"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            app:layout_constraintTop_toTopOf="parent"
-                            android:text="@string/sample_text"
-                            android:textSize="28sp"
-                            android:textColor="@color/primary"/>
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/btnAddToPopularPartDetailsAct"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:padding="4dp"
+                        android:backgroundTint="@color/primary"
+                        android:textColor="@color/primaryLight"
+                        android:text="Add To Popular"
+                        app:layout_constraintHorizontal_weight="3"
+                        app:layout_constraintTop_toTopOf="@id/txtPartNamePartDetails"
+                        app:layout_constraintBottom_toBottomOf="@id/txtPartNamePartDetails"
+                        app:layout_constraintStart_toEndOf="@id/txtPartNamePartDetails"
+                        app:layout_constraintEnd_toEndOf="parent"/>
 
-                    </androidx.constraintlayout.widget.ConstraintLayout>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -155,7 +183,7 @@
     </ScrollView>
 
     <RelativeLayout
-        android:id="@+id/btnInterestedMachineDetailsAct"
+        android:id="@+id/btnUpdatePartDetailsAct"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:background="@drawable/gradient_rect_interested"
@@ -165,9 +193,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="Interested"
-            android:textSize="24sp"
-            android:textColor="#008FF5"/>
+            android:text="update"
+            android:textColor="#008FF5"
+            android:textSize="24sp" />
 
     </RelativeLayout>
 

@@ -28,30 +28,25 @@ class ImageSliderAdapter(private val imagesArrayList:ArrayList<ByteArray>,privat
     }
 
     class ViewHolder(val binding:SliderImageItemBinding): SliderViewAdapter.ViewHolder(binding.root) {
-
         fun bind(position:Int,images:ArrayList<ByteArray>,context: Context) {
-            if (images[position] is ByteArray) {
-                binding.apply {
-                    sliderImageView.visibility = View.VISIBLE
-                    btnPlayVideo.visibility = View.GONE
+            binding.apply {
+                sliderImageView.visibility = View.VISIBLE
+                btnPlayVideo.visibility = View.GONE
 
-                    sliderImageView.setOnClickListener {
-                        ImagePicker.with(context as ComponentActivity)
-                            .crop()
-                            .compress(512)
-                            .maxResultSize(512,512)
-                            .createIntent { intent ->
-                                Constants.sliderChangeImagePosition = position
-                                Constants.startForSliderImageResult?.launch(intent)
-                            }
-                    }
-                    Glide.with(context).load(images[position]).fitCenter().into(sliderImageView)
+                sliderImageView.setOnClickListener {
+                    ImagePicker.with(context as ComponentActivity)
+                        .crop()
+                        .compress(512)
+                        .maxResultSize(512,512)
+                        .createIntent { intent ->
+                            Constants.sliderChangeImagePosition = position
+                            Constants.startForSliderImageResult?.launch(intent)
+                        }
                 }
+
+                Glide.with(context).load(images[position]).fitCenter().into(sliderImageView)
             }
         }
-
-//        fun setImageView
-
     }
 
 

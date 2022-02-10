@@ -69,7 +69,22 @@ class MachineDetailsActivity : AppCompatActivity() {
     private lateinit var resultLauncherPdf: ActivityResultLauncher<Intent>
     var machinePdf: ByteArray? = null
 
-    @SuppressLint("Range")
+    private val startForSliderImageResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+        val resultCode = result.resultCode
+        val data = result.data
+
+        if (resultCode == Activity.RESULT_OK) {
+            val uri = data?.data!!
+            imagesArrayList.removeAt(Constants.sliderChangeImagePosition)
+            imagesArrayList.add(Constants.sliderChangeImagePosition,File(uri.path!!).readBytes())
+            imageSliderAdapter.notifyDataSetChanged()
+        } else if (resultCode == ImagePicker.RESULT_ERROR) {
+            Toast.makeText(this, ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMachineDetailsBinding.inflate(layoutInflater)
@@ -96,21 +111,7 @@ class MachineDetailsActivity : AppCompatActivity() {
             }
         }
 
-        Constants.startForSliderImageResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-            val resultCode = result.resultCode
-            val data = result.data
-
-            if (resultCode == Activity.RESULT_OK) {
-                val uri = data?.data!!
-                imagesArrayList.removeAt(Constants.sliderChangeImagePosition)
-                imagesArrayList.add(Constants.sliderChangeImagePosition,File(uri.path!!).readBytes())
-                imageSliderAdapter.notifyDataSetChanged()
-            } else if (resultCode == ImagePicker.RESULT_ERROR) {
-                Toast.makeText(this, ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show()
-            }
-        }
+        Constants.startForSliderImageResult = startForSliderImageResult
 
         resultLauncherPdf = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result: ActivityResult ->
 
@@ -483,6 +484,11 @@ class MachineDetailsActivity : AppCompatActivity() {
         }
         bos.close()
         return bos.toByteArray()
+    }
+
+    override fun onResume() {
+        Constants.startForSliderImageResult = startForSliderImageResult
+        super.onResume()
     }
 
 }

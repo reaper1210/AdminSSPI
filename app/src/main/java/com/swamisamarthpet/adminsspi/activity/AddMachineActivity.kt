@@ -13,15 +13,12 @@ import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResult
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.smarteist.autoimageslider.IndicatorView.animation.type.IndicatorAnimationType
 import com.smarteist.autoimageslider.SliderAnimations
@@ -59,13 +56,29 @@ class AddMachineActivity : AppCompatActivity() {
         }
     }
 
-    private val startForSliderImageResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+    private val insertStartForSliderImageResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
         val resultCode = result.resultCode
         val data = result.data
 
         if (resultCode == Activity.RESULT_OK) {
             val uri = data?.data!!
             imagesArrayList.add(File(uri.path!!).readBytes())
+            imageSliderAdapter.notifyDataSetChanged()
+        } else if (resultCode == ImagePicker.RESULT_ERROR) {
+            Toast.makeText(this, ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private val updateStartForSliderImageResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+        val resultCode = result.resultCode
+        val data = result.data
+
+        if (resultCode == Activity.RESULT_OK) {
+            val uri = data?.data!!
+            imagesArrayList.removeAt(Constants.sliderChangeImagePosition)
+            imagesArrayList.add(Constants.sliderChangeImagePosition,File(uri.path!!).readBytes())
             imageSliderAdapter.notifyDataSetChanged()
         } else if (resultCode == ImagePicker.RESULT_ERROR) {
             Toast.makeText(this, ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
@@ -83,6 +96,8 @@ class AddMachineActivity : AppCompatActivity() {
         machineDetailsAdapter = MachineDetailsAdapter()
         machineDetailsAdapter.activityContext = this
         machineDetailsAdapter.submitList(Constants.currentMachineDetails)
+
+        Constants.startForSliderImageResult = updateStartForSliderImageResult
 
         binding.apply{
 
@@ -105,7 +120,7 @@ class AddMachineActivity : AppCompatActivity() {
                     .compress(512)
                     .maxResultSize(512,512)
                     .createIntent { intent ->
-                        startForSliderImageResult.launch(intent)
+                        insertStartForSliderImageResult?.launch(intent)
                     }
 
             }
@@ -203,13 +218,13 @@ class AddMachineActivity : AppCompatActivity() {
 
             btnViewPdf.setOnClickListener {
                 if(machinePdf != null){
-                    pdfViewMachineDetailsAct.fromBytes(machinePdf!!)
+                    pdfViewAddMachineAct.fromBytes(machinePdf!!)
                         .onError {
                             println("Pdf Error: ${it.message}")
                         }
                         .enableSwipe(true)
                         .load()
-                    pdfViewMachineDetailsAct.visibility = View.VISIBLE
+                    pdfViewAddMachineAct.visibility = View.VISIBLE
                     chipClosePdfAddMachineActivity.visibility = View.VISIBLE
                 }
                 else{
@@ -218,7 +233,7 @@ class AddMachineActivity : AppCompatActivity() {
             }
 
             chipClosePdfAddMachineActivity.setOnClickListener {
-                pdfViewMachineDetailsAct.visibility = View.GONE
+                pdfViewAddMachineAct.visibility = View.GONE
                 chipClosePdfAddMachineActivity.visibility = View.GONE
             }
 
@@ -283,12 +298,19 @@ class AddMachineActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
 
-        if(binding.pdfViewMachineDetailsAct.visibility == View.VISIBLE){
-            binding.pdfViewMachineDetailsAct.visibility = View.GONE
+        if(binding.pdfViewAddMachineAct.visibility == View.VISIBLE){
+            binding.pdfViewAddMachineAct.visibility = View.GONE
             binding.chipClosePdfAddMachineActivity.visibility = View.GONE
         }
-        super.onBackPressed()
+        else{
+            super.onBackPressed()
+        }
 
+    }
+
+    override fun onResume() {
+        Constants.startForSliderImageResult = updateStartForSliderImageResult
+        super.onResume()
     }
 
 }

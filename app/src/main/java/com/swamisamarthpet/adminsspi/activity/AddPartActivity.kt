@@ -42,13 +42,29 @@ class AddPartActivity : AppCompatActivity() {
     private lateinit var imageSliderAdapter: ImageSliderAdapter
     private lateinit var imagesArrayList: ArrayList<ByteArray>
 
-    private val startForSliderImageResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+    private val insertStartForSliderImageResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
         val resultCode = result.resultCode
         val data = result.data
 
         if (resultCode == Activity.RESULT_OK) {
             val uri = data?.data!!
             imagesArrayList.add(File(uri.path!!).readBytes())
+            imageSliderAdapter.notifyDataSetChanged()
+        } else if (resultCode == ImagePicker.RESULT_ERROR) {
+            Toast.makeText(this, ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private val updateStartForSliderImageResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+        val resultCode = result.resultCode
+        val data = result.data
+
+        if (resultCode == Activity.RESULT_OK) {
+            val uri = data?.data!!
+            imagesArrayList.removeAt(Constants.sliderChangeImagePosition)
+            imagesArrayList.add(Constants.sliderChangeImagePosition,File(uri.path!!).readBytes())
             imageSliderAdapter.notifyDataSetChanged()
         } else if (resultCode == ImagePicker.RESULT_ERROR) {
             Toast.makeText(this, ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
@@ -65,9 +81,9 @@ class AddPartActivity : AppCompatActivity() {
         Constants.currentPartDetails.clear()
         partDetailsAdapter = PartDetailsAdapter()
         partDetailsAdapter.activityContext = this
-        Constants.currentPartDetails.add(Details("Hello","World"))
-        Constants.currentPartDetails.add(Details("Hello","World"))
         partDetailsAdapter.submitList(Constants.currentPartDetails)
+
+        Constants.startForSliderImageResult = updateStartForSliderImageResult
 
         binding.apply{
 
@@ -90,9 +106,8 @@ class AddPartActivity : AppCompatActivity() {
                     .compress(512)
                     .maxResultSize(512,512)
                     .createIntent { intent ->
-                        startForSliderImageResult.launch(intent)
+                        insertStartForSliderImageResult?.launch(intent)
                     }
-
             }
 
             btnRemoveImageAddPartAct.setOnClickListener {
@@ -130,13 +145,13 @@ class AddPartActivity : AppCompatActivity() {
                 dialog.show()
             }
 
-            btnAddPartAddPartAct.setOnClickListener { it: View? ->
+            btnAddPartAddPartAct.setOnClickListener {
                 val detailsFeaturesList = ArrayList<String>()
                 val detailsDescList = ArrayList<String>()
 
-                for(i in 0..Constants.currentMachineDetails.lastIndex){
-                    detailsFeaturesList.add(Constants.currentMachineDetails[i].key)
-                    detailsDescList.add(Constants.currentMachineDetails[i].value)
+                for(i in 0..Constants.currentPartDetails.lastIndex){
+                    detailsFeaturesList.add(Constants.currentPartDetails[i].key)
+                    detailsDescList.add(Constants.currentPartDetails[i].value)
                 }
 
                 var detailsKeysAndValuesMerged = String()
@@ -210,6 +225,11 @@ class AddPartActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        Constants.startForSliderImageResult = updateStartForSliderImageResult
+        super.onResume()
     }
 
 }
