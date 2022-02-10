@@ -1,15 +1,22 @@
 package com.swamisamarthpet.adminsspi.activity
 
+import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.smarteist.autoimageslider.IndicatorView.animation.type.IndicatorAnimationType
 import com.smarteist.autoimageslider.SliderAnimations
 import com.swamisamarthpet.adminsspi.Constants
+import com.swamisamarthpet.adminsspi.R
 import com.swamisamarthpet.adminsspi.adapter.ImageSliderAdapter
 import com.swamisamarthpet.adminsspi.adapter.PartDetailsAdapter
 import com.swamisamarthpet.adminsspi.data.model.Details
@@ -36,6 +43,7 @@ class PartDetailsActivity : AppCompatActivity() {
         binding = ActivityPartDetailsBinding.inflate(layoutInflater)
 
         partDetailsAdapter = PartDetailsAdapter()
+        partDetailsAdapter.activityContext = this
         val partId = intent.getIntExtra("partId",0)
 
         if(Constants.currentMachine != null && partId!=0){
@@ -124,6 +132,35 @@ class PartDetailsActivity : AppCompatActivity() {
             partDetailsRecycler.apply {
                 layoutManager = LinearLayoutManager(this@PartDetailsActivity)
                 adapter = partDetailsAdapter
+            }
+            btnAddDetailPartDetails.setOnClickListener {
+                val builder = AlertDialog.Builder(this@PartDetailsActivity)
+                val activityInflater = this@PartDetailsActivity.layoutInflater
+                val view = activityInflater.inflate(R.layout.dialog_add_detail,null)
+
+                builder.setView(view)
+                val dialog=builder.create()
+                dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+                val edtTxtAddDetailFeature = view.findViewById<EditText>(R.id.edtTxtAddDetailFeature)
+                val edtTxtAddDetailDetail = view.findViewById<EditText>(R.id.edtTxtAddDetailDetail)
+                val btnAddDetail = view.findViewById<ImageView>(R.id.btnAddDetailConfirm)
+
+                btnAddDetail.setOnClickListener {
+                    val feature = edtTxtAddDetailFeature.text.toString()
+                    val detail = edtTxtAddDetailDetail.text.toString()
+                    if(feature.isNotEmpty() && detail.isNotEmpty()){
+                        Constants.currentPartDetails.add(Details(feature, detail))
+                        partDetailsAdapter.notifyItemInserted(Constants.currentPartDetails.size)
+                        dialog.cancel()
+                    }
+                    else{
+                        Toast.makeText(this@PartDetailsActivity,"Please fill the fields", Toast.LENGTH_SHORT).show()
+                    }
+
+                }
+
+                dialog.show()
             }
         }
     }

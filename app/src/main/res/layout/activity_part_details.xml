@@ -129,6 +129,15 @@
                         app:layout_constraintStart_toStartOf="parent"
                         android:text="Part Details"/>
 
+                    <ImageView
+                        android:id="@+id/btnAddDetailPartDetails"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_add"
+                        app:layout_constraintTop_toTopOf="@+id/txtPartDetails"
+                        app:layout_constraintBottom_toBottomOf="@+id/txtPartDetails"
+                        app:layout_constraintStart_toEndOf="@+id/txtPartDetails"/>
+
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/partDetailsRecycler"
                         android:layout_width="match_parent"
