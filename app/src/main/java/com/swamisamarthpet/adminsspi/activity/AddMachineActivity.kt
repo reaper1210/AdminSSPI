@@ -308,6 +308,7 @@ class AddMachineActivity : AppCompatActivity() {
 
     }
 
+
     override fun onResume() {
         Constants.startForSliderImageResult = updateStartForSliderImageResult
         super.onResume()
