@@ -45,6 +45,21 @@ class PartDetailsActivity : AppCompatActivity() {
     private lateinit var imageSliderAdapter: ImageSliderAdapter
     private lateinit var imagesArrayList: ArrayList<ByteArray>
 
+    private val insertStartForSliderImageResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+        val resultCode = result.resultCode
+        val data = result.data
+
+        if (resultCode == Activity.RESULT_OK) {
+            val uri = data?.data!!
+            imagesArrayList.add(File(uri.path!!).readBytes())
+            imageSliderAdapter.notifyDataSetChanged()
+        } else if (resultCode == ImagePicker.RESULT_ERROR) {
+            Toast.makeText(this, ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private val startForSliderImageResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
         val resultCode = result.resultCode
         val data = result.data
@@ -74,7 +89,7 @@ class PartDetailsActivity : AppCompatActivity() {
 
         if(Constants.currentMachine != null && partId!=0){
             partViewModel.getPartById(partId, Constants.currentMachine?.machineName!!)
-            handleUpdatePartResponse()
+            handleGetPartByIdResponse()
         }
 
         binding.btnBackPartDetailsActivity.setOnClickListener {
@@ -84,7 +99,7 @@ class PartDetailsActivity : AppCompatActivity() {
         setContentView(binding.root)
     }
 
-    private fun handleUpdatePartResponse(){
+    private fun handleGetPartByIdResponse(){
         lifecycleScope.launchWhenStarted {
             partViewModel.partApiStateFlow.collect { partApiState->
                 when (partApiState) {
@@ -130,6 +145,30 @@ class PartDetailsActivity : AppCompatActivity() {
         }
     }
 
+    private fun handleUpdatePartResponse() {
+        lifecycleScope.launchWhenStarted {
+            partViewModel.partApiStateFlow.collect { partApiState->
+                when (partApiState) {
+                    is PartApiState.LoadingUpdatePart -> {
+                        binding.partDetailsActProgressBarLayout.visibility = View.VISIBLE
+                    }
+                    is PartApiState.SuccessUpdatePart -> {
+                        binding.partDetailsActProgressBarLayout.visibility = View.GONE
+                        Intent(this@PartDetailsActivity,MachineDetailsActivity::class.java).also{
+                            it.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                            startActivity(it)
+                        }
+                    }
+                    is PartApiState.FailureUpdatePart -> {
+                        Toast.makeText(this@PartDetailsActivity,"Failed to Update Part",Toast.LENGTH_SHORT).show()
+                        binding.partDetailsActProgressBarLayout.visibility = View.VISIBLE
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+
     private fun setValues(){
         if(part!=null){
             Constants.currentPartDetails.clear()
@@ -142,7 +181,7 @@ class PartDetailsActivity : AppCompatActivity() {
             }
             partDetailsAdapter.submitList(Constants.currentPartDetails)
 
-            imagesArrayList = ArrayList<ByteArray>()
+            imagesArrayList = ArrayList()
             val imagesStringList = part?.partImages?.split(";")
             for(imageString in imagesStringList!!){
                 val decompressor = Inflater()
@@ -173,10 +212,20 @@ class PartDetailsActivity : AppCompatActivity() {
                     setSliderTransformAnimation(SliderAnimations.SIMPLETRANSFORMATION)
                 }
                 btnUpdatePartDetailsAct.setOnClickListener {
-                    val intent = Intent(this@PartDetailsActivity,MainActivity::class.java)
-                    intent.putExtra("supportFragmentRedirect",true)
-                    intent.putExtra("productName",part?.partName)
-                    startActivity(intent)
+                    val allKeyArray = ArrayList<String>()
+                    val allValuesArray = ArrayList<String>()
+                    val keysAndValuesMergedArray = java.util.ArrayList<String>()
+                    for(detail in Constants.currentPartDetails){
+                        allKeyArray.add(detail.key)
+                        allValuesArray.add(detail.value)
+                    }
+                    for(i in 0..allKeyArray.lastIndex){
+                        keysAndValuesMergedArray.add(allKeyArray[i]+":"+allValuesArray[i])
+                    }
+                    val partDetailsString = keysAndValuesMergedArray.joinToString(";")
+                    partViewModel.updatePart(Constants.currentMachine!!.machineName, part!!.partId, part!!.partName,
+                    partDetailsString, imagesArrayList)
+                    handleUpdatePartResponse()
                 }
                 partDetailsRecycler.apply {
                     layoutManager = LinearLayoutManager(this@PartDetailsActivity)
@@ -210,6 +259,21 @@ class PartDetailsActivity : AppCompatActivity() {
                     }
 
                     dialog.show()
+                }
+
+                btnAddImagePartDetailsAct.setOnClickListener {
+                    ImagePicker.with(this@PartDetailsActivity)
+                        .crop()
+                        .compress(512)
+                        .maxResultSize(512,512)
+                        .createIntent { intent ->
+                            insertStartForSliderImageResult?.launch(intent)
+                        }
+                }
+
+                btnRemoveImagePartDetailsAct.setOnClickListener {
+                    imagesArrayList.removeAt(imagePartDetailsAct.currentPagePosition)
+                    imageSliderAdapter.notifyDataSetChanged()
                 }
 
                 btnDeletePartDetailsActivity.setOnClickListener {

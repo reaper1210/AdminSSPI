@@ -69,6 +69,21 @@ class MachineDetailsActivity : AppCompatActivity() {
     private lateinit var resultLauncherPdf: ActivityResultLauncher<Intent>
     var machinePdf: ByteArray? = null
 
+    private val insertStartForSliderImageResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+        val resultCode = result.resultCode
+        val data = result.data
+
+        if (resultCode == Activity.RESULT_OK) {
+            val uri = data?.data!!
+            imagesArrayList.add(File(uri.path!!).readBytes())
+            imageSliderAdapter.notifyDataSetChanged()
+        } else if (resultCode == ImagePicker.RESULT_ERROR) {
+            Toast.makeText(this, ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private val startForSliderImageResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
         val resultCode = result.resultCode
         val data = result.data
@@ -422,6 +437,21 @@ class MachineDetailsActivity : AppCompatActivity() {
                 handleUpdateMachineResponse()
             }
 
+            btnAddImageMachineDetailsAct.setOnClickListener {
+                ImagePicker.with(this@MachineDetailsActivity)
+                    .crop()
+                    .compress(512)
+                    .maxResultSize(512,512)
+                    .createIntent { intent ->
+                        insertStartForSliderImageResult?.launch(intent)
+                    }
+            }
+
+            btnRemoveImageMachineDetailsAct.setOnClickListener {
+                imagesArrayList.removeAt(imageMachineDetailsAct.currentPagePosition)
+                imageSliderAdapter.notifyDataSetChanged()
+            }
+
             btnAddPart.setOnClickListener {
                 Intent(this@MachineDetailsActivity,AddPartActivity::class.java).also{
                     startActivity(it)
@@ -484,6 +514,11 @@ class MachineDetailsActivity : AppCompatActivity() {
         }
         bos.close()
         return bos.toByteArray()
+    }
+
+    override fun onDestroy() {
+        Constants.currentMachine = null
+        super.onDestroy()
     }
 
     override fun onResume() {
