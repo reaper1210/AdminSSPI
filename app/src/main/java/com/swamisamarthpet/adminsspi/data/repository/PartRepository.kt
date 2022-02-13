@@ -30,4 +30,8 @@ class PartRepository
         emit(partApiService.deletePart(machineName, partId))
     }.flowOn(Dispatchers.IO)
 
+    fun markPartAsPopular(partName: String,partDetails: String,partPopularity: Int,partImages: ArrayList<ByteArray>):Flow<Int> = flow {
+        emit(partApiService.markPartAsPopular(partName, partDetails, partPopularity, partImages))
+    }.flowOn(Dispatchers.IO)
+
 }

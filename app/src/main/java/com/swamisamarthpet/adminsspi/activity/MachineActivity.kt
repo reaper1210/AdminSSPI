@@ -51,10 +51,6 @@ class MachineActivity : AppCompatActivity() {
         binding = ActivityMachineBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-//        val categoryName = intent.getStringExtra("categoryName")
-//        val categoryImg = intent.getByteArrayExtra("categoryImg")
-//        val categoryId = intent.getIntExtra("categoryId",0)
-
         if((Constants.currentCategory?.categoryName!=null) and (Constants.currentCategory?.categoryImage!=null)){
             machinesAdapter = MachinesAdapter()
             binding.apply {
@@ -206,7 +202,10 @@ class MachineActivity : AppCompatActivity() {
             handleResponse()
 
         }
-
+        else{
+            Toast.makeText(this@MachineActivity,"Some Error Occurred",Toast.LENGTH_SHORT).show()
+            finishAffinity()
+        }
 
     }
 

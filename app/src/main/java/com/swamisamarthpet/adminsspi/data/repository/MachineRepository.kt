@@ -34,4 +34,8 @@ class MachineRepository
         emit(machineApiService.insertMachine(categoryName, machineName, machineDetails, machinePDF, machineImages, youtubeVideoLink))
     }.flowOn(Dispatchers.IO)
 
+    fun markMachineAsPopular(machineName: String,machineDetails: String, machinePopularity:Int, machinePDF:ByteArray, machineImages: ArrayList<ByteArray>, youtubeVideoLink: String):Flow<Int> = flow {
+        emit(machineApiService.markMachineAsPopular(machineName, machineDetails, machinePopularity, machinePDF, machineImages, youtubeVideoLink))
+    }.flowOn(Dispatchers.IO)
+
 }

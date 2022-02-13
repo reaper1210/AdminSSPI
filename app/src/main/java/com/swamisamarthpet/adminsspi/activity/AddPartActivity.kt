@@ -41,6 +41,7 @@ class AddPartActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddPartBinding
     private lateinit var imageSliderAdapter: ImageSliderAdapter
     private lateinit var imagesArrayList: ArrayList<ByteArray>
+    private var machineId = 0
 
     private val insertStartForSliderImageResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
         val resultCode = result.resultCode
@@ -78,6 +79,8 @@ class AddPartActivity : AppCompatActivity() {
         binding = ActivityAddPartBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        machineId = Constants.currentMachine?.machineId!!
+
         Constants.currentPartDetails.clear()
         partDetailsAdapter = PartDetailsAdapter()
         partDetailsAdapter.activityContext = this
@@ -106,7 +109,7 @@ class AddPartActivity : AppCompatActivity() {
                     .compress(512)
                     .maxResultSize(512,512)
                     .createIntent { intent ->
-                        insertStartForSliderImageResult?.launch(intent)
+                        insertStartForSliderImageResult.launch(intent)
                     }
             }
 
@@ -209,6 +212,7 @@ class AddPartActivity : AppCompatActivity() {
                             btnAddPartAddPartAct.isClickable = true
                         }
                         Intent(this@AddPartActivity,MachineDetailsActivity::class.java).also{
+                            it.putExtra("machineId",machineId)
                             it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                             startActivity(it)
                         }

@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.NumberPicker
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -131,6 +132,7 @@ class PartDetailsActivity : AppCompatActivity() {
                     }
                     is PartApiState.SuccessDeletePart -> {
                         Intent(this@PartDetailsActivity,MachineDetailsActivity::class.java).also{
+                            it.putExtra("machineId",Constants.currentMachine?.machineId!!)
                             it.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
                             startActivity(it)
                         }
@@ -153,14 +155,41 @@ class PartDetailsActivity : AppCompatActivity() {
                         binding.partDetailsActProgressBarLayout.visibility = View.VISIBLE
                     }
                     is PartApiState.SuccessUpdatePart -> {
-                        binding.partDetailsActProgressBarLayout.visibility = View.GONE
                         Intent(this@PartDetailsActivity,MachineDetailsActivity::class.java).also{
+                            it.putExtra("machineId",Constants.currentMachine?.machineId!!)
                             it.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
                             startActivity(it)
                         }
+                        binding.partDetailsActProgressBarLayout.visibility = View.GONE
                     }
                     is PartApiState.FailureUpdatePart -> {
                         Toast.makeText(this@PartDetailsActivity,"Failed to Update Part",Toast.LENGTH_SHORT).show()
+                        binding.partDetailsActProgressBarLayout.visibility = View.VISIBLE
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    private fun handleMarkPartAsPopularResponse() {
+        lifecycleScope.launchWhenStarted {
+            partViewModel.partApiStateFlow.collect { partApiState->
+                when (partApiState) {
+                    is PartApiState.LoadingMarkPartAsPopular -> {
+                        binding.partDetailsActProgressBarLayout.visibility = View.VISIBLE
+                    }
+                    is PartApiState.SuccessMarkPartAsPopular -> {
+                        Intent(this@PartDetailsActivity,MachineDetailsActivity::class.java).also{
+                            it.putExtra("machineId",Constants.currentMachine?.machineId!!)
+                            it.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                            startActivity(it)
+                        }
+                        binding.partDetailsActProgressBarLayout.visibility = View.GONE
+                    }
+                    is PartApiState.FailureMarkPartAsPopular -> {
+                        println("failed mark as popular: ${partApiState.msg}")
+                        Toast.makeText(this@PartDetailsActivity,"Failed to Mark Part As Popular",Toast.LENGTH_SHORT).show()
                         binding.partDetailsActProgressBarLayout.visibility = View.VISIBLE
                     }
                     else -> {}
@@ -267,7 +296,7 @@ class PartDetailsActivity : AppCompatActivity() {
                         .compress(512)
                         .maxResultSize(512,512)
                         .createIntent { intent ->
-                            insertStartForSliderImageResult?.launch(intent)
+                            insertStartForSliderImageResult.launch(intent)
                         }
                 }
 
@@ -286,6 +315,43 @@ class PartDetailsActivity : AppCompatActivity() {
                     }
 
                 }
+
+                btnAddToPopularPartDetailsAct.setOnClickListener {
+                    val builder = AlertDialog.Builder(this@PartDetailsActivity)
+                    val activityInflater = this@PartDetailsActivity.layoutInflater
+                    val view = activityInflater.inflate(R.layout.dialog_select_popularity,null)
+
+                    builder.setView(view)
+                    val dialog=builder.create()
+                    dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+                    val numPickerPopularity = view.findViewById<NumberPicker>(R.id.numPickerPopularity)
+                    numPickerPopularity.maxValue = 10
+                    numPickerPopularity.minValue = 1
+                    val btnConfirmPopularity = view.findViewById<ImageView>(R.id.btnConfirmPopularity)
+
+                    val allKeyArray = ArrayList<String>()
+                    val allValuesArray = ArrayList<String>()
+                    val keysAndValuesMergedArray = java.util.ArrayList<String>()
+                    for(detail in Constants.currentPartDetails){
+                        allKeyArray.add(detail.key)
+                        allValuesArray.add(detail.value)
+                    }
+                    for(i in 0..allKeyArray.lastIndex){
+                        keysAndValuesMergedArray.add(allKeyArray[i]+":"+allValuesArray[i])
+                    }
+                    val partDetailsString = keysAndValuesMergedArray.joinToString(";")
+
+                    btnConfirmPopularity.setOnClickListener {
+                        val popularity = numPickerPopularity.value
+                        partViewModel.markPartAsPopular(part?.partName!!,partDetailsString,popularity,imagesArrayList)
+                        handleMarkPartAsPopularResponse()
+                        dialog.cancel()
+                    }
+
+                    dialog.show()
+                }
+
             }
         }
 

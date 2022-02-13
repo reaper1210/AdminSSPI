@@ -20,6 +20,7 @@ import android.provider.MediaStore
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.NumberPicker
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
@@ -110,20 +111,11 @@ class MachineDetailsActivity : AppCompatActivity() {
         machineDetailsAdapter = MachineDetailsAdapter()
         machineDetailsAdapter.activityContext = this
         partsAdapter = PartsAdapter()
-        if(Constants.currentMachine!=null){
-            machine = Constants.currentMachine!!
-            machinePdf = getPdfDecompressedByteArray(machine.machinePdf)
-            binding.machineDetailsActProgressBarLayout.visibility = View.GONE
-            partViewModel.getAllParts(machine.machineName)
-            handlePartsResponse()
-            setValues()
-        }
-        else{
-            val machineId = intent.getIntExtra("machineId", 0)
-            if (Constants.currentCategory?.categoryName != null) {
-                machineViewModel.getMachineById(machineId, Constants.currentCategory!!.categoryName)
-                handleMachineDetailsResponse()
-            }
+
+        val machineId = intent.getIntExtra("machineId", 0)
+        if (Constants.currentCategory?.categoryName != null) {
+            machineViewModel.getMachineById(machineId, Constants.currentCategory!!.categoryName)
+            handleMachineDetailsResponse()
         }
 
         Constants.startForSliderImageResult = startForSliderImageResult
@@ -272,6 +264,31 @@ class MachineDetailsActivity : AppCompatActivity() {
                     else -> {
 
                     }
+                }
+            }
+        }
+    }
+
+    private fun handleMarkMachineAsPopularResponse() {
+        lifecycleScope.launchWhenStarted {
+            machineViewModel.machineApiStateFlow.collect { machineApiState ->
+                when (machineApiState) {
+                    is MachineApiState.LoadingMarkMachineAsPopular -> {
+                        binding.machineDetailsActProgressBarLayout.visibility = View.VISIBLE
+                    }
+                    is MachineApiState.SuccessMarkMachineAsPopular -> {
+                        Intent(this@MachineDetailsActivity,MachineActivity::class.java).also{
+                            it.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                            startActivity(it)
+                        }
+                        binding.machineDetailsActProgressBarLayout.visibility = View.GONE
+                    }
+                    is MachineApiState.FailureMarkMachineAsPopular -> {
+                        println("Update Failed ${machineApiState.msg}")
+                        binding.machineDetailsActProgressBarLayout.visibility = View.GONE
+                        Toast.makeText(this@MachineDetailsActivity,"Failed to mark machine as popular",Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {}
                 }
             }
         }
@@ -443,7 +460,7 @@ class MachineDetailsActivity : AppCompatActivity() {
                     .compress(512)
                     .maxResultSize(512,512)
                     .createIntent { intent ->
-                        insertStartForSliderImageResult?.launch(intent)
+                        insertStartForSliderImageResult.launch(intent)
                     }
             }
 
@@ -457,6 +474,42 @@ class MachineDetailsActivity : AppCompatActivity() {
                     startActivity(it)
                     Constants.currentMachine = machine
                 }
+            }
+
+            btnAddToPopular.setOnClickListener {
+                val builder = AlertDialog.Builder(this@MachineDetailsActivity)
+                val activityInflater = this@MachineDetailsActivity.layoutInflater
+                val view = activityInflater.inflate(R.layout.dialog_select_popularity,null)
+
+                builder.setView(view)
+                val dialog=builder.create()
+                dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+                val numPickerPopularity = view.findViewById<NumberPicker>(R.id.numPickerPopularity)
+                numPickerPopularity.maxValue = 10
+                numPickerPopularity.minValue = 1
+                val btnConfirmPopularity = view.findViewById<ImageView>(R.id.btnConfirmPopularity)
+
+                val allKeyArray = ArrayList<String>()
+                val allValuesArray = ArrayList<String>()
+                val keysAndValuesMergedArray = ArrayList<String>()
+                for(detail in Constants.currentMachineDetails){
+                    allKeyArray.add(detail.key)
+                    allValuesArray.add(detail.value)
+                }
+                for(i in 0..allKeyArray.lastIndex){
+                    keysAndValuesMergedArray.add(allKeyArray[i]+":"+allValuesArray[i])
+                }
+                val machineDetailsString = keysAndValuesMergedArray.joinToString(";")
+
+                btnConfirmPopularity.setOnClickListener {
+                    val popularity = numPickerPopularity.value
+                    machineViewModel.markMachineAsPopular(machine.machineName, machineDetailsString, popularity, machinePdf!!, imagesArrayList, edtTxtYoutubeLink.text.toString())
+                    handleMarkMachineAsPopularResponse()
+                    dialog.cancel()
+                }
+
+                dialog.show()
             }
 
         }
@@ -514,11 +567,6 @@ class MachineDetailsActivity : AppCompatActivity() {
         }
         bos.close()
         return bos.toByteArray()
-    }
-
-    override fun onDestroy() {
-        Constants.currentMachine = null
-        super.onDestroy()
     }
 
     override fun onResume() {

@@ -81,4 +81,17 @@ class PartViewModel
             }
     }
 
+    fun markPartAsPopular(partName: String,partDetails: String, partPopularity:Int, partImages: ArrayList<ByteArray>) = viewModelScope.launch {
+        partRepository.markPartAsPopular(partName, partDetails, partPopularity, partImages)
+            .onStart {
+                _part_apiStateFlow.value = PartApiState.LoadingMarkPartAsPopular
+            }
+            .catch { e->
+                _part_apiStateFlow.value = PartApiState.FailureMarkPartAsPopular(e)
+            }
+            .collect { response->
+                _part_apiStateFlow.value = PartApiState.SuccessMarkPartAsPopular(response)
+            }
+    }
+
 }

@@ -84,4 +84,17 @@ class MachineViewModel
             }
     }
 
+    fun markMachineAsPopular(machineName: String,machineDetails: String, machinePopularity:Int, machinePDF:ByteArray, machineImages: ArrayList<ByteArray>, youtubeVideoLink: String) = viewModelScope.launch{
+        machineRepository.markMachineAsPopular(machineName, machineDetails, machinePopularity, machinePDF, machineImages, youtubeVideoLink)
+            .onStart {
+                _Machine_apiStateFlow.value = MachineApiState.LoadingMarkMachineAsPopular
+            }
+            .catch { e->
+                _Machine_apiStateFlow.value = MachineApiState.FailureMarkMachineAsPopular(e)
+            }
+            .collect{ response->
+                _Machine_apiStateFlow.value = MachineApiState.SuccessMarkMachineAsPopular(response)
+            }
+    }
+
 }

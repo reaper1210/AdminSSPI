@@ -108,4 +108,29 @@ class MachineApiService
         }
     }
 
+    suspend fun markMachineAsPopular(machineName: String,machineDetails: String, machinePopularity:Int, machinePDF:ByteArray, machineImages: ArrayList<ByteArray>, youtubeVideoLink: String): Int {
+        return client.post("https://sspi-test-api.herokuapp.com/v1/insertPopularProduct"){
+            body = MultiPartFormDataContent(
+                formData {
+                    append("productName",machineName)
+                    append("productDetails",machineDetails)
+                    append("productType","machine")
+                    append("productPopularity",machinePopularity)
+                    append("machinePdf",machinePDF, Headers.build {
+                        append(HttpHeaders.ContentType, "file/pdf")
+                        append(HttpHeaders.ContentDisposition, "filename=${machineName}.pdf")
+                    })
+                    for(machineImage in machineImages){
+                        append("machineImage",machineImage, Headers.build {
+                            append(HttpHeaders.ContentType, "image/png")
+                            append(HttpHeaders.ContentDisposition, "filename=${machineName}.png")
+                        })
+                    }
+                    append("productYoutubeVideo",youtubeVideoLink)
+                    append("adminPassword","SSPI@VASAI")
+                }
+            )
+        }
+    }
+
 }

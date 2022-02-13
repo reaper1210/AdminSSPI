@@ -95,4 +95,24 @@ class PartApiService
         }
     }
 
+    suspend fun markPartAsPopular(partName: String,partDetails: String, partPopularity:Int, partImages: ArrayList<ByteArray>): Int {
+        return client.post("https://sspi-test-api.herokuapp.com/v1/insertPopularProduct"){
+            body = MultiPartFormDataContent(
+                formData {
+                    append("productName",partName)
+                    append("productDetails",partDetails)
+                    append("productType","part")
+                    append("productPopularity",partPopularity)
+                    for(partImage in partImages){
+                        append("partImage",partImage, Headers.build {
+                            append(HttpHeaders.ContentType, "image/png")
+                            append(HttpHeaders.ContentDisposition, "filename=${partName}.png")
+                        })
+                    }
+                    append("adminPassword","SSPI@VASAI")
+                }
+            )
+        }
+    }
+
 }

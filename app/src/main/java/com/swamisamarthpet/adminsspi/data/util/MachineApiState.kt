@@ -8,21 +8,30 @@ sealed class MachineApiState {
     class FailureGetAllMachines(val msg: Throwable) : MachineApiState()
     class SuccessGetAllMachines(val data: List<HashMap<String, String>>) : MachineApiState()
     object LoadingGetAllMachines : MachineApiState()
+
     class SuccessGetMachineById(val data: Machine) : MachineApiState()
     object LoadingGetMachineById : MachineApiState()
     object EmptyGetMachineById : MachineApiState()
     class FailureGetMachineById(val msg: Throwable) : MachineApiState()
+
     class SuccessDeleteMachine(val data: Int) : MachineApiState()
     object LoadingDeleteMachine : MachineApiState()
     class FailureDeleteMachine(val msg: Throwable) : MachineApiState()
     object EmptyDeleteMachine : MachineApiState()
+
     class SuccessInsertMachine(val data: Int) : MachineApiState()
     object LoadingInsertMachine : MachineApiState()
     class FailureInsertMachine(val msg: Throwable) : MachineApiState()
     object EmptyInsertMachine : MachineApiState()
+
     class SuccessUpdateMachine(val data: Int) : MachineApiState()
     object LoadingUpdateMachine : MachineApiState()
     class FailureUpdateMachine(val msg: Throwable) : MachineApiState()
     object EmptyUpdateMachine : MachineApiState()
+
+    class SuccessMarkMachineAsPopular(val data: Int) : MachineApiState()
+    object LoadingMarkMachineAsPopular : MachineApiState()
+    class FailureMarkMachineAsPopular(val msg: Throwable) : MachineApiState()
+    object EmptyMarkMachineAsPopular : MachineApiState()
 
 }

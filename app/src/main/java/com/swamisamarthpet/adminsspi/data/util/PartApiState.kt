@@ -26,5 +26,8 @@ sealed class PartApiState {
     class SuccessDeletePart(val data: Int) : PartApiState()
     object LoadingDeletePart: PartApiState()
 
+    class FailureMarkPartAsPopular(val msg:Throwable) : PartApiState()
+    class SuccessMarkPartAsPopular(val data: Int) : PartApiState()
+    object LoadingMarkPartAsPopular: PartApiState()
 
 }
