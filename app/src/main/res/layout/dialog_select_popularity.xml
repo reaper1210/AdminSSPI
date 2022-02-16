@@ -1,44 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="16dp"
-    android:outlineAmbientShadowColor="@color/primaryLight">
+    android:backgroundTint="#00FFFFFF">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/background">
+        app:cardCornerRadius="16dp"
+        android:layout_centerHorizontal="true"
+        android:outlineAmbientShadowColor="@color/primary">
 
-        <NumberPicker
-            android:id="@+id/numPickerPopularity"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="32dp"
-            android:layout_marginVertical="8dp"
-            android:padding="8dp"
-            android:hint="Feature"
-            android:textColor="@color/black"
-            android:textColorHint="@color/black"
-            android:textSize="20sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/btnConfirmPopularity"/>
+            android:background="@color/background">
 
-        <ImageView
-            android:id="@+id/btnConfirmPopularity"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_marginVertical="8dp"
-            android:src="@drawable/btn_add_detail"
-            app:layout_constraintTop_toBottomOf="@id/numPickerPopularity"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            <NumberPicker
+                android:id="@+id/numPickerPopularity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="32dp"
+                android:layout_marginVertical="8dp"
+                android:padding="8dp"
+                android:hint="Feature"
+                android:textSize="24sp"
+                android:theme="@style/NumberPicker"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/btnConfirmPopularity"/>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <ImageView
+                android:id="@+id/btnConfirmPopularity"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginVertical="8dp"
+                android:src="@drawable/btn_confirm"
+                app:layout_constraintTop_toBottomOf="@id/numPickerPopularity"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
 
-</com.google.android.material.card.MaterialCardView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+
+
+</RelativeLayout>

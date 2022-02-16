@@ -19,4 +19,9 @@
         <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.MaterialCardView.Cut</item>
     </style>
 
+    <style name="NumberPicker">
+        <item name="android:textColorPrimary">@color/primary</item>
+        <item name="colorControlNormal">@color/primaryLight</item>
+    </style>
+
 </resources>
