@@ -6,32 +6,42 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.smarteist.autoimageslider.IndicatorView.animation.type.IndicatorAnimationType
 import com.smarteist.autoimageslider.SliderAnimations
 import com.swamisamarthpet.adminsspi.Constants
 import com.swamisamarthpet.adminsspi.adapter.ImageSliderAdapter
+import com.swamisamarthpet.adminsspi.adapter.PopularProductAdapter
 import com.swamisamarthpet.adminsspi.data.model.Banner
+import com.swamisamarthpet.adminsspi.data.model.PopularProduct
 import com.swamisamarthpet.adminsspi.data.util.BannerApiState
+import com.swamisamarthpet.adminsspi.data.util.PopularProductApiState
 import com.swamisamarthpet.adminsspi.databinding.FragmentOthersBinding
 import com.swamisamarthpet.adminsspi.ui.BannerViewModel
+import com.swamisamarthpet.adminsspi.ui.PopularProductViewModel
 import kotlinx.coroutines.flow.collect
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.zip.Inflater
+import javax.inject.Inject
 
 class OthersFragment : Fragment() {
 
     private val bannerViewModel: BannerViewModel by activityViewModels()
+    private val popularProductViewModel: PopularProductViewModel by activityViewModels()
     private lateinit var binding: FragmentOthersBinding
     private lateinit var bannersList: ArrayList<Banner>
     private lateinit var imagesArrayList: ArrayList<ByteArray>
     private lateinit var imageSliderAdapter: ImageSliderAdapter
+    @Inject
+    lateinit var popularProductAdapter: PopularProductAdapter
     private var deleteImagePosition: Int = 0
     private var updateImagePosition: Int = 0
 
@@ -82,6 +92,9 @@ class OthersFragment : Fragment() {
     ): View {
         binding = FragmentOthersBinding.inflate(inflater,container,false)
 
+        popularProductAdapter = PopularProductAdapter()
+        popularProductViewModel.getAllPopularProducts()
+        handleGetAllPopularProductsResponse()
         bannerViewModel.getAllBanners()
         handleGetAllBannersResponse()
 
@@ -117,6 +130,39 @@ class OthersFragment : Fragment() {
         }
 
         return binding.root
+    }
+
+    private fun handleGetAllPopularProductsResponse(){
+        lifecycleScope.launchWhenStarted {
+            popularProductViewModel.popularProductApiStateFlow.collect {
+                when (it) {
+                    is PopularProductApiState.LoadingGetAllPopularProducts -> {
+                        binding.progressBarLayoutPopularProductsOthersFragment.visibility = View.VISIBLE
+                    }
+                    is PopularProductApiState.SuccessGetAllPopularProducts -> {
+                        binding.apply {
+                            if(it.data.isNullOrEmpty()){
+                                txtNoPopularProductOthersFragment.visibility = View.VISIBLE
+                                recyclerViewPopularProducts.visibility = View.GONE
+                            }
+                            recyclerViewPopularProducts.apply{
+                                adapter = popularProductAdapter
+                                layoutManager = LinearLayoutManager(requireContext(),LinearLayoutManager.HORIZONTAL,false)
+                            }
+                            progressBarLayoutPopularProductsOthersFragment.visibility = View.GONE
+                            popularProductAdapter.submitList(it.data)
+                        }
+                    }
+                    is PopularProductApiState.FailureGetAllPopularProducts -> {
+                        binding.progressBarLayoutPopularProductsOthersFragment.visibility = View.GONE
+                    }
+                    is PopularProductApiState.Empty -> {
+                        binding.progressBarLayoutPopularProductsOthersFragment.visibility = View.GONE
+                    }
+                    else -> {}
+                }
+            }
+        }
     }
 
     private fun handleGetAllBannersResponse(){

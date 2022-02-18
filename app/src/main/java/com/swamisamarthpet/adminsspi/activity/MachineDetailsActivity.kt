@@ -42,9 +42,11 @@ import com.swamisamarthpet.adminsspi.data.model.Details
 import com.swamisamarthpet.adminsspi.data.model.Machine
 import com.swamisamarthpet.adminsspi.data.util.MachineApiState
 import com.swamisamarthpet.adminsspi.data.util.PartApiState
+import com.swamisamarthpet.adminsspi.data.util.PopularProductApiState
 import com.swamisamarthpet.adminsspi.databinding.ActivityMachineDetailsBinding
 import com.swamisamarthpet.adminsspi.ui.MachineViewModel
 import com.swamisamarthpet.adminsspi.ui.PartViewModel
+import com.swamisamarthpet.adminsspi.ui.PopularProductViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import java.io.ByteArrayOutputStream
@@ -58,6 +60,7 @@ class MachineDetailsActivity : AppCompatActivity() {
 
     private val partViewModel: PartViewModel by viewModels()
     private val machineViewModel: MachineViewModel by viewModels()
+    private val popularProductViewModel: PopularProductViewModel by viewModels()
     @Inject
     lateinit var machineDetailsAdapter: MachineDetailsAdapter
     @Inject
@@ -69,6 +72,7 @@ class MachineDetailsActivity : AppCompatActivity() {
     private lateinit var imagesArrayList: ArrayList<ByteArray>
     private lateinit var resultLauncherPdf: ActivityResultLauncher<Intent>
     var machinePdf: ByteArray? = null
+    var productId: Int = 0
 
     private val insertStartForSliderImageResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
         val resultCode = result.resultCode
@@ -117,6 +121,14 @@ class MachineDetailsActivity : AppCompatActivity() {
             machineViewModel.getMachineById(machineId, Constants.currentCategory!!.categoryName)
             handleMachineDetailsResponse()
         }
+        else{
+            productId = intent.getIntExtra("productId", 0)
+            if (productId != 0) {
+                popularProductViewModel.getPopularProductById(productId)
+                handleGetPopularProductByIdResponse()
+            }
+        }
+
 
         Constants.startForSliderImageResult = startForSliderImageResult
 
@@ -135,10 +147,58 @@ class MachineDetailsActivity : AppCompatActivity() {
         setContentView(binding.root)
     }
 
+    private fun handleGetPopularProductByIdResponse() {
+        lifecycleScope.launchWhenStarted {
+            popularProductViewModel.popularProductApiStateFlow.collect { popularProductApiState ->
+                when (popularProductApiState) {
+                    is PopularProductApiState.LoadingGetPopularProductById -> {
+                        binding.apply{
+                            machineDetailsActProgressBarLayout.visibility = View.VISIBLE
+                        }
+                    }
+                    is PopularProductApiState.SuccessGetPopularProductById -> {
+                        val product = popularProductApiState.data
+                        machine = Machine(
+                            product.productId,
+                            product.productName,
+                            product.productImages,
+                            product.productYoutubeVideo,
+                            product.productDetails,
+                            product.productPdf
+                        )
+                        Constants.currentMachine = machine
+                        machinePdf = getPdfDecompressedByteArray(machine.machinePdf)
+                        binding.apply{
+                            machineDetailsActProgressBarLayout.visibility = View.GONE
+                            btnAddToPopular.visibility = View.GONE
+                            txtProductPopularityMachineDetailsActivity.apply{
+                                visibility = View.VISIBLE
+                                text = product.productPopularity.toString()
+                            }
+                            topLayoutChipMachineDetailsActivity.text = "Delete Product"
+                        }
+                        partViewModel.getAllParts(machine.machineName)
+                        handlePartsResponse()
+                        setValues()
+                    }
+                    is PopularProductApiState.FailureGetPopularProductById -> {
+                        binding.machineDetailsActProgressBarLayout.visibility = View.GONE
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+
     override fun onBackPressed() {
         if (binding.pdfViewMachineDetailsAct.visibility == View.VISIBLE) {
             binding.pdfViewMachineDetailsAct.visibility = View.GONE
-            binding.topLayoutChipMachineDetailsActivity.text = "Delete Machine"
+            binding.topLayoutChipMachineDetailsActivity.text = if(productId==0){
+                "Delete Machine"
+            }
+            else{
+                "Delete Product"
+            }
         } else {
             super.onBackPressed()
         }
@@ -157,7 +217,10 @@ class MachineDetailsActivity : AppCompatActivity() {
                         machine = machineApiState.data
                         Constants.currentMachine = machine
                         machinePdf = getPdfDecompressedByteArray(machine.machinePdf)
-                        binding.machineDetailsActProgressBarLayout.visibility = View.GONE
+                        binding.apply{
+                            machineDetailsActProgressBarLayout.visibility = View.GONE
+                            topLayoutChipMachineDetailsActivity.text = "Delete Machine"
+                        }
                         partViewModel.getAllParts(machine.machineName)
                         handlePartsResponse()
                         setValues()
@@ -277,8 +340,8 @@ class MachineDetailsActivity : AppCompatActivity() {
                         binding.machineDetailsActProgressBarLayout.visibility = View.VISIBLE
                     }
                     is MachineApiState.SuccessMarkMachineAsPopular -> {
-                        Intent(this@MachineDetailsActivity,MachineActivity::class.java).also{
-                            it.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        Intent(this@MachineDetailsActivity,MainActivity::class.java).also{
+                            it.putExtra("redirect",2)
                             startActivity(it)
                         }
                         binding.machineDetailsActProgressBarLayout.visibility = View.GONE
@@ -287,6 +350,58 @@ class MachineDetailsActivity : AppCompatActivity() {
                         println("Update Failed ${machineApiState.msg}")
                         binding.machineDetailsActProgressBarLayout.visibility = View.GONE
                         Toast.makeText(this@MachineDetailsActivity,"Failed to mark machine as popular",Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    private fun handleUpdatePopularProductResponse() {
+        lifecycleScope.launchWhenStarted {
+            popularProductViewModel.popularProductApiStateFlow.collect { popularProductApiState ->
+                when (popularProductApiState) {
+                    is PopularProductApiState.LoadingUpdatePopularProduct -> {
+                        binding.machineDetailsActProgressBarLayout.visibility = View.VISIBLE
+                    }
+                    is PopularProductApiState.SuccessUpdatePopularProduct -> {
+                        if(popularProductApiState.data == 1){
+                            binding.machineDetailsActProgressBarLayout.visibility = View.GONE
+                            Toast.makeText(this@MachineDetailsActivity, "Popular Product Updated", Toast.LENGTH_SHORT).show()
+                            val intent = Intent(this@MachineDetailsActivity,MainActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                            intent.putExtra("redirect",2)
+                            startActivity(intent)
+                        }
+                    }
+                    is PopularProductApiState.FailureUpdatePopularProduct -> {
+                        println("Update Failed ${popularProductApiState.msg}")
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    private fun handleDeletePopularProductResponse() {
+        lifecycleScope.launchWhenStarted {
+            popularProductViewModel.popularProductApiStateFlow.collect { popularProductApiState ->
+                when (popularProductApiState) {
+                    is PopularProductApiState.LoadingDeletePopularProduct -> {
+                        binding.machineDetailsActProgressBarLayout.visibility = View.VISIBLE
+                    }
+                    is PopularProductApiState.SuccessDeletePopularProduct -> {
+                        if(popularProductApiState.data == 1){
+                            binding.machineDetailsActProgressBarLayout.visibility = View.GONE
+                            Toast.makeText(this@MachineDetailsActivity, "Popular Product Deleted", Toast.LENGTH_SHORT).show()
+                            val intent = Intent(this@MachineDetailsActivity,MainActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                            intent.putExtra("redirect",2)
+                            startActivity(intent)
+                        }
+                    }
+                    is PopularProductApiState.FailureDeletePopularProduct -> {
+                        println("Delete Failed ${popularProductApiState.msg}")
                     }
                     else -> {}
                 }
@@ -329,13 +444,25 @@ class MachineDetailsActivity : AppCompatActivity() {
         binding.apply {
 
             topLayoutChipMachineDetailsActivity.setOnClickListener {
-                if(topLayoutChipMachineDetailsActivity.text == "Delete Machine"){
-                    machineViewModel.deleteMachine(machine.machineId,Constants.currentCategory!!.categoryName)
-                    handleDeleteMachineResponse()
+                if((topLayoutChipMachineDetailsActivity.text == "Delete Machine") or (topLayoutChipMachineDetailsActivity.text == "Delete Product")){
+                    if (productId != 0) {
+                        popularProductViewModel.deletePopularProduct(productId)
+                        handleDeletePopularProductResponse()
+                    }
+                    else{
+                        machineViewModel.deleteMachine(machine.machineId,Constants.currentCategory!!.categoryName)
+                        handleDeleteMachineResponse()
+                    }
+
                 }
                 else{
                     pdfViewMachineDetailsAct.visibility = View.GONE
-                    topLayoutChipMachineDetailsActivity.text = "Delete Machine"
+                    topLayoutChipMachineDetailsActivity.text = if(productId==0){
+                        "Delete Machine"
+                    }
+                    else{
+                        "Delete Product"
+                    }
                 }
             }
 
@@ -448,10 +575,14 @@ class MachineDetailsActivity : AppCompatActivity() {
                 }
                 val machineDetailsString = keysAndValuesMergedArray.joinToString(";")
 
-                machineViewModel.updateMachine(Constants.currentCategory!!.categoryName,
-                machine.machineId,machine.machineName,machineDetailsString,
-                    machinePdf!!,imagesArrayList,edtTxtYoutubeLink.text.toString())
-                handleUpdateMachineResponse()
+                if (productId != 0) {
+                    popularProductViewModel.updatePopularProduct(productId,txtProductPopularityMachineDetailsActivity.text.toString().toInt(),machine.machineName,"machine",machineDetailsString,imagesArrayList,machinePdf!!,edtTxtYoutubeLink.text.toString())
+                    handleUpdatePopularProductResponse()
+                }
+                else{
+                    machineViewModel.updateMachine(Constants.currentCategory!!.categoryName, machine.machineId,machine.machineName,machineDetailsString, machinePdf!!,imagesArrayList,edtTxtYoutubeLink.text.toString())
+                    handleUpdateMachineResponse()
+                }
             }
 
             btnAddImageMachineDetailsAct.setOnClickListener {
@@ -476,19 +607,20 @@ class MachineDetailsActivity : AppCompatActivity() {
                 }
             }
 
+            val builder = AlertDialog.Builder(this@MachineDetailsActivity)
+            val activityInflater = this@MachineDetailsActivity.layoutInflater
+            val view = activityInflater.inflate(R.layout.dialog_select_popularity,null)
+
+            builder.setView(view)
+            val dialog=builder.create()
+            dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+            val numPickerPopularity = view.findViewById<NumberPicker>(R.id.numPickerPopularity)
+            numPickerPopularity.maxValue = 10
+            numPickerPopularity.minValue = 1
+            val btnConfirmPopularity = view.findViewById<ImageView>(R.id.btnConfirmPopularity)
+
             btnAddToPopular.setOnClickListener {
-                val builder = AlertDialog.Builder(this@MachineDetailsActivity)
-                val activityInflater = this@MachineDetailsActivity.layoutInflater
-                val view = activityInflater.inflate(R.layout.dialog_select_popularity,null)
-
-                builder.setView(view)
-                val dialog=builder.create()
-                dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-
-                val numPickerPopularity = view.findViewById<NumberPicker>(R.id.numPickerPopularity)
-                numPickerPopularity.maxValue = 10
-                numPickerPopularity.minValue = 1
-                val btnConfirmPopularity = view.findViewById<ImageView>(R.id.btnConfirmPopularity)
 
                 val allKeyArray = ArrayList<String>()
                 val allValuesArray = ArrayList<String>()
@@ -508,7 +640,15 @@ class MachineDetailsActivity : AppCompatActivity() {
                     handleMarkMachineAsPopularResponse()
                     dialog.cancel()
                 }
+                dialog.show()
+            }
 
+            txtProductPopularityMachineDetailsActivity.setOnClickListener {
+                numPickerPopularity.value = txtProductPopularityMachineDetailsActivity.text.toString().toInt()
+                btnConfirmPopularity.setOnClickListener {
+                    txtProductPopularityMachineDetailsActivity.text = numPickerPopularity.value.toString()
+                    dialog.cancel()
+                }
                 dialog.show()
             }
 

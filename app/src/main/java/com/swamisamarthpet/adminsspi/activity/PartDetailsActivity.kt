@@ -25,10 +25,13 @@ import com.swamisamarthpet.adminsspi.R
 import com.swamisamarthpet.adminsspi.adapter.ImageSliderAdapter
 import com.swamisamarthpet.adminsspi.adapter.PartDetailsAdapter
 import com.swamisamarthpet.adminsspi.data.model.Details
+import com.swamisamarthpet.adminsspi.data.model.Machine
 import com.swamisamarthpet.adminsspi.data.model.Part
 import com.swamisamarthpet.adminsspi.data.util.PartApiState
+import com.swamisamarthpet.adminsspi.data.util.PopularProductApiState
 import com.swamisamarthpet.adminsspi.databinding.ActivityPartDetailsBinding
 import com.swamisamarthpet.adminsspi.ui.PartViewModel
+import com.swamisamarthpet.adminsspi.ui.PopularProductViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import java.io.ByteArrayOutputStream
@@ -39,6 +42,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class PartDetailsActivity : AppCompatActivity() {
     private val partViewModel: PartViewModel by viewModels()
+    private val popularProductViewModel: PopularProductViewModel by viewModels()
     @Inject
     lateinit var partDetailsAdapter: PartDetailsAdapter
     lateinit var binding: ActivityPartDetailsBinding
@@ -92,12 +96,106 @@ class PartDetailsActivity : AppCompatActivity() {
             partViewModel.getPartById(partId, Constants.currentMachine?.machineName!!)
             handleGetPartByIdResponse()
         }
+        else{
+            val productId = intent.getIntExtra("productId", 0)
+            if (productId != 0) {
+                popularProductViewModel.getPopularProductById(productId)
+                handleGetPopularProductByIdResponse()
+            }
+        }
 
         binding.btnBackPartDetailsActivity.setOnClickListener {
             onBackPressed()
         }
 
         setContentView(binding.root)
+    }
+
+    private fun handleGetPopularProductByIdResponse() {
+        lifecycleScope.launchWhenStarted {
+            popularProductViewModel.popularProductApiStateFlow.collect { popularProductApiState ->
+                when (popularProductApiState) {
+                    is PopularProductApiState.LoadingGetPopularProductById -> {
+                        binding.apply{
+                            partDetailsActProgressBarLayout.visibility = View.VISIBLE
+                        }
+                    }
+                    is PopularProductApiState.SuccessGetPopularProductById -> {
+                        val product = popularProductApiState.data
+                        part = Part(product.productId,product.productName,product.productImages,product.productDetails)
+                        binding.apply{
+                            partDetailsActProgressBarLayout.visibility = View.GONE
+                            btnAddToPopularPartDetailsAct.visibility = View.GONE
+                            txtProductPopularityPartDetailsActivity.apply{
+                                visibility = View.VISIBLE
+                                text = product.productPopularity.toString()
+                            }
+                            btnDeletePartDetailsActivity.text = "Delete Product"
+                        }
+                        setValues()
+                    }
+                    is PopularProductApiState.FailureGetPopularProductById -> {
+                        binding.partDetailsActProgressBarLayout.visibility = View.GONE
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    private fun handleUpdatePopularProductResponse() {
+        lifecycleScope.launchWhenStarted {
+            popularProductViewModel.popularProductApiStateFlow.collect { popularProductApiState ->
+                when (popularProductApiState) {
+                    is PopularProductApiState.LoadingUpdatePopularProduct -> {
+                        binding.partDetailsActProgressBarLayout.visibility = View.VISIBLE
+                    }
+                    is PopularProductApiState.SuccessUpdatePopularProduct -> {
+                        if(popularProductApiState.data == 1){
+                            binding.partDetailsActProgressBarLayout.visibility = View.GONE
+                            Toast.makeText(this@PartDetailsActivity, "Popular Product Updated", Toast.LENGTH_SHORT).show()
+                            val intent = Intent(this@PartDetailsActivity,MainActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                            intent.putExtra("redirect",2)
+                            startActivity(intent)
+                        }
+                        else{
+                            Toast.makeText(this@PartDetailsActivity, "Some Error Occurred", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    is PopularProductApiState.FailureUpdatePopularProduct -> {
+                        println("Update Failed ${popularProductApiState.msg}")
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    private fun handleDeletePopularProductResponse() {
+        lifecycleScope.launchWhenStarted {
+            popularProductViewModel.popularProductApiStateFlow.collect { popularProductApiState ->
+                when (popularProductApiState) {
+                    is PopularProductApiState.LoadingDeletePopularProduct -> {
+                        binding.partDetailsActProgressBarLayout.visibility = View.VISIBLE
+                    }
+                    is PopularProductApiState.SuccessDeletePopularProduct -> {
+                        if(popularProductApiState.data == 1){
+                            binding.partDetailsActProgressBarLayout.visibility = View.GONE
+                            Toast.makeText(this@PartDetailsActivity, "Popular Product Deleted", Toast.LENGTH_SHORT).show()
+                            val intent = Intent(this@PartDetailsActivity,MainActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                            intent.putExtra("redirect",2)
+                            startActivity(intent)
+                        }
+                    }
+                    is PopularProductApiState.FailureDeletePopularProduct -> {
+                        println("Delete Failed ${popularProductApiState.msg}")
+                    }
+                    else -> {}
+                }
+            }
+        }
     }
 
     private fun handleGetPartByIdResponse(){
@@ -180,9 +278,8 @@ class PartDetailsActivity : AppCompatActivity() {
                         binding.partDetailsActProgressBarLayout.visibility = View.VISIBLE
                     }
                     is PartApiState.SuccessMarkPartAsPopular -> {
-                        Intent(this@PartDetailsActivity,MachineDetailsActivity::class.java).also{
-                            it.putExtra("machineId",Constants.currentMachine?.machineId!!)
-                            it.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        Intent(this@PartDetailsActivity,MainActivity::class.java).also{
+                            it.putExtra("redirect",2)
                             startActivity(it)
                         }
                         binding.partDetailsActProgressBarLayout.visibility = View.GONE
@@ -252,9 +349,18 @@ class PartDetailsActivity : AppCompatActivity() {
                         keysAndValuesMergedArray.add(allKeyArray[i]+":"+allValuesArray[i])
                     }
                     val partDetailsString = keysAndValuesMergedArray.joinToString(";")
-                    partViewModel.updatePart(Constants.currentMachine!!.machineName, part!!.partId, part!!.partName,
-                    partDetailsString, imagesArrayList)
-                    handleUpdatePartResponse()
+
+                    val productId = intent.getIntExtra("productId", 0)
+                    if (productId != 0) {
+                        popularProductViewModel.updatePopularProduct(productId,txtProductPopularityPartDetailsActivity.text.toString().toInt(),part?.partName!!,"part",partDetailsString,imagesArrayList,ByteArray(0),"")
+                        handleUpdatePopularProductResponse()
+                    }
+                    else{
+                        partViewModel.updatePart(Constants.currentMachine!!.machineName, part!!.partId, part!!.partName, partDetailsString, imagesArrayList)
+                        handleUpdatePartResponse()
+                    }
+
+
                 }
                 partDetailsRecycler.apply {
                     layoutManager = LinearLayoutManager(this@PartDetailsActivity)
@@ -306,29 +412,37 @@ class PartDetailsActivity : AppCompatActivity() {
                 }
 
                 btnDeletePartDetailsActivity.setOnClickListener {
-                    if((Constants.currentMachine!=null) and (part!=null)){
-                        partViewModel.deletePart(Constants.currentMachine?.machineName!!, part?.partId!!)
-                        handleDeletePartResponse()
+                    val productId = intent.getIntExtra("productId", 0)
+                    if (productId != 0) {
+                        popularProductViewModel.deletePopularProduct(productId)
+                        handleDeletePopularProductResponse()
                     }
                     else{
-                        Toast.makeText(this@PartDetailsActivity,"Failed to Delete Part",Toast.LENGTH_SHORT).show()
+                        if((Constants.currentMachine!=null) and (part!=null)){
+                            partViewModel.deletePart(Constants.currentMachine?.machineName!!, part?.partId!!)
+                            handleDeletePartResponse()
+                        }
+                        else{
+                            Toast.makeText(this@PartDetailsActivity,"Failed to Delete Part",Toast.LENGTH_SHORT).show()
+                        }
                     }
 
                 }
 
+                val builder = AlertDialog.Builder(this@PartDetailsActivity)
+                val activityInflater = this@PartDetailsActivity.layoutInflater
+                val view = activityInflater.inflate(R.layout.dialog_select_popularity,null)
+
+                builder.setView(view)
+                val dialog=builder.create()
+                dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+                val numPickerPopularity = view.findViewById<NumberPicker>(R.id.numPickerPopularity)
+                numPickerPopularity.maxValue = 10
+                numPickerPopularity.minValue = 1
+                val btnConfirmPopularity = view.findViewById<ImageView>(R.id.btnConfirmPopularity)
+
                 btnAddToPopularPartDetailsAct.setOnClickListener {
-                    val builder = AlertDialog.Builder(this@PartDetailsActivity)
-                    val activityInflater = this@PartDetailsActivity.layoutInflater
-                    val view = activityInflater.inflate(R.layout.dialog_select_popularity,null)
-
-                    builder.setView(view)
-                    val dialog=builder.create()
-                    dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-
-                    val numPickerPopularity = view.findViewById<NumberPicker>(R.id.numPickerPopularity)
-                    numPickerPopularity.maxValue = 10
-                    numPickerPopularity.minValue = 1
-                    val btnConfirmPopularity = view.findViewById<ImageView>(R.id.btnConfirmPopularity)
 
                     val allKeyArray = ArrayList<String>()
                     val allValuesArray = ArrayList<String>()
@@ -349,6 +463,15 @@ class PartDetailsActivity : AppCompatActivity() {
                         dialog.cancel()
                     }
 
+                    dialog.show()
+                }
+
+                txtProductPopularityPartDetailsActivity.setOnClickListener {
+                    numPickerPopularity.value = txtProductPopularityPartDetailsActivity.text.toString().toInt()
+                    btnConfirmPopularity.setOnClickListener {
+                        txtProductPopularityPartDetailsActivity.text = numPickerPopularity.value.toString()
+                        dialog.cancel()
+                    }
                     dialog.show()
                 }
 
