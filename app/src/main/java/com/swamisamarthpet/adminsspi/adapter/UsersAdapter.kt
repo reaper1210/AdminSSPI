@@ -25,6 +25,7 @@ constructor():ListAdapter<User,UsersAdapter.UserViewHolder>(Diff) {
                     intent.putExtra("userName",user.userName)
                     intent.putExtra("phoneNumber",user.phoneNumber)
                     intent.putExtra("lastMessageTime",user.lastMessageTime)
+                    intent.putExtra("token",user.token)
                     it.context.startActivity(intent)
                 }
             }

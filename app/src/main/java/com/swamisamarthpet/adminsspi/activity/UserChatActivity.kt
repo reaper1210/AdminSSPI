@@ -10,6 +10,8 @@ import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.firestore.FirebaseFirestore
+import com.swamisamarthpet.adminsspi.FCMNotificationReceiver
+import com.swamisamarthpet.adminsspi.FCMNotificationSender
 import com.swamisamarthpet.adminsspi.R
 import com.swamisamarthpet.adminsspi.adapter.SupportMessagesAdapter
 import com.swamisamarthpet.adminsspi.data.model.SupportMessage
@@ -42,7 +44,7 @@ class UserChatActivity : AppCompatActivity() {
         try{
             intent.apply{
                 currentUser = User(getStringExtra("userId")!!,getStringExtra("userName")!!,getStringExtra("phoneNumber")!!,
-                    getStringExtra("lastMessageTime")!!)
+                    getStringExtra("lastMessageTime")!!,getStringExtra("token")!!)
             }
         }catch (e: NullPointerException){
             Toast.makeText(this@UserChatActivity,"Some Error Occurred",Toast.LENGTH_SHORT).show()
@@ -123,6 +125,8 @@ class UserChatActivity : AppCompatActivity() {
                             edtTxtUserChatMessage.text.clear()
                             supportViewModel.updateLastMessageTime(currentUser.userId,supportApiState.data.dateAndTime.toString())
                             handleUpdateResponse()
+                            FCMNotificationSender(currentUser.token,"Admin","${edtTxtUserChatMessage.text}",this@UserChatActivity)
+                                .sendNotifications()
                         }
                     }
                     is SupportApiState.FailureSendMessage ->{

@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.fragment.app.activityViewModels
+import com.google.firebase.firestore.FirebaseFirestore
 import com.swamisamarthpet.adminsspi.R
 import com.swamisamarthpet.adminsspi.adapter.ViewPagerAdapter
 import com.swamisamarthpet.adminsspi.databinding.ActivityMainBinding
@@ -17,6 +18,7 @@ import io.ktor.util.*
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    private lateinit var db: FirebaseFirestore
     @OptIn(InternalAPI::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,6 +30,7 @@ class MainActivity : AppCompatActivity() {
             OthersFragment()
         )
         val viewPagerAdapter = ViewPagerAdapter(fragmentList,this.supportFragmentManager,lifecycle)
+        db = FirebaseFirestore.getInstance()
 
         binding.apply {
             bottomMenu.setItemSelected(R.id.home)
@@ -61,6 +64,11 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+        val tokenHashMap = HashMap<String,Any>()
+        val token = getSharedPreferences("admin_token", MODE_PRIVATE).getString("token","")
+        tokenHashMap["token"] = token.toString()
+        db.collection("admin").document("token").set(tokenHashMap)
 
         setContentView(binding.root)
     }
