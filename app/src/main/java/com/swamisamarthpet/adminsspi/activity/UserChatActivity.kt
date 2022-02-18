@@ -90,7 +90,9 @@ class UserChatActivity : AppCompatActivity() {
                 adapter = supportMessagesAdapter
                 scrollToPosition(messageList.size-1)
             }
+            txtUserNameUserChatAct.text = currentUser.userName
         }
+
 
     }
 
@@ -122,11 +124,11 @@ class UserChatActivity : AppCompatActivity() {
                         binding.apply{
                             btnSendMessageUserChatProgressBar.visibility = View.GONE
                             btnSendMessageUserChat.visibility = View.VISIBLE
-                            edtTxtUserChatMessage.text.clear()
                             supportViewModel.updateLastMessageTime(currentUser.userId,supportApiState.data.dateAndTime.toString())
                             handleUpdateResponse()
                             FCMNotificationSender(currentUser.token,"Admin","${edtTxtUserChatMessage.text}",this@UserChatActivity)
                                 .sendNotifications()
+                            edtTxtUserChatMessage.text.clear()
                         }
                     }
                     is SupportApiState.FailureSendMessage ->{
