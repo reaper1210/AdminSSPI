@@ -33,6 +33,7 @@ import com.swamisamarthpet.adminsspi.ui.MachineViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import java.io.File
+import java.util.regex.Pattern
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -209,9 +210,14 @@ class AddMachineActivity : AppCompatActivity() {
                         Toast.makeText(this@AddMachineActivity, "Add PDF", Toast.LENGTH_SHORT).show()
                     }
                     else -> {
-                        machineViewModel.insertMachine(Constants.currentCategory!!.categoryName,edtTxtMachineNameMachineDetails.text.toString(),
-                            detailsKeysAndValuesMerged, machinePdf!!, imagesArrayList, edtTxtYoutubeLink.text.toString())
-                        handleInsertMachineResponse()
+                        if(getVideoIdFromUrl(edtTxtYoutubeLink.text.toString())!=null){
+                            machineViewModel.insertMachine(Constants.currentCategory!!.categoryName,edtTxtMachineNameMachineDetails.text.toString(),
+                                detailsKeysAndValuesMerged, machinePdf!!, imagesArrayList, edtTxtYoutubeLink.text.toString())
+                            handleInsertMachineResponse()
+                        }
+                        else{
+                            Toast.makeText(this@AddMachineActivity, "Invalid Youtube Link", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
@@ -243,6 +249,23 @@ class AddMachineActivity : AppCompatActivity() {
 
         }
 
+    }
+
+    private fun getVideoIdFromUrl(url: String): String? {
+        val expression = "(?<=watch\\?v=|/videos/|embed\\/|youtu.be\\/|\\/v\\/|\\/e\\/|watch\\?v%3D|watch\\?feature=player_embedded&v=|%2Fvideos%2F|embed%\u200C\u200B2F|youtu.be%2F|%2Fv%2F)[^#\\&\\?\\n]*";
+
+        if (url.trim().isEmpty()) {
+            return null
+        }
+        val pattern = Pattern.compile(expression)
+        val matcher = pattern.matcher(url)
+        try {
+            if (matcher.find())
+                return matcher.group()
+        } catch (e: ArrayIndexOutOfBoundsException) {
+            e.printStackTrace()
+        }
+        return null
     }
 
     private fun handleInsertMachineResponse() {
